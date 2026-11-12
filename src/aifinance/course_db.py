@@ -6,7 +6,7 @@
   수업 Excel 과 같은 분모·같은 숫자를 Claude 가 보게 하기 위해서다.
 - 판매 채널(channel)만 원문에서 판별해 덧붙인다 (모듈 6의 규칙).
 - 공시 원문 검색 색인은 확정 공시의 상품별 문단(앞부분) + 공통 문구로 만든다.
-  임베딩은 정적 다국어 모델(potion) — 모듈 5 평가에서 Claude 의 검색어 재작성 조건에서 더 낫고 150배 빠르다.
+  임베딩은 정적 모델 potion-retrieval-32M — 모듈 5 평가셋 기준 bge-small 과 비슷한 품질에 150배 빠르고 메모리 0.5GB.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from .db import channel
 from .rag import build_index, find_boilerplate, make_chunks
 
 COURSE_DB = DATA_DIR / "shinhan_jpm.duckdb"
-COURSE_MODEL = "minishlab/potion-multilingual-128M"
+COURSE_MODEL = "minishlab/potion-retrieval-32M"  # 영어 검색 전용 정적 모델, 메모리 0.5GB (다국어 128M 은 1.7GB 로 무료 사양 1GB 초과)
 CHUNKS_PER_DOC = 8  # 문서당 상품별 청크 상한 (표지·Key Terms 가 앞부분에 있음)
 
 PRODUCT_COLUMNS = [

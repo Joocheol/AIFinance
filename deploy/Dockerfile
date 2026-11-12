@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir \
 # DuckDB 전문 검색 확장과 임베딩 모델을 이미지에 미리 넣는다 (실행 시 다운로드·지연 없음)
 RUN python -c "import duckdb; duckdb.connect().execute('INSTALL fts')"
 COPY src/aifinance ./src/aifinance
-RUN python -c "from aifinance.rag import embed; embed(['warm up'], 'minishlab/potion-multilingual-128M')"
+RUN python -c "from aifinance.rag import embed; embed(['warm up'], 'minishlab/potion-retrieval-32M')"
 
 ARG DB_URL
 ADD ${DB_URL} /app/data/shinhan_jpm.duckdb

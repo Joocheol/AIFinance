@@ -9,6 +9,12 @@
 - **임베딩·검색**: 로컬 임베딩(fastembed) + DuckDB 하이브리드 검색(벡터 + BM25). 별도 벡터 DB 없음
 - **교재**: Jupyter 노트북 (한국어 설명)
 
+## 신한은행 FE/RM 실습 (2026-11-28, 12-05) — Claude판
+
+6시간 실무자 과정. 참가자가 Claude Pro·Azure 무료 계정으로 **직접 해 보는 경험 11가지**를 중심으로 구성했다.
+→ [shinhan/README.md](shinhan/README.md) (사전 과제, 강사용 수업안·정답표, 1·2일차 활동지)
+→ [deploy/README.md](deploy/README.md) (참가자가 Azure에 MCP 서버를 배포하고 Claude 커넥터로 연결)
+
 ## 커리큘럼
 
 | 모듈 | 주제 | 핵심 내용 | 상태 |

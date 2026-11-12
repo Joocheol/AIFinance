@@ -15,3 +15,6 @@ __pycache__/
 
 # 실습용 임시 폴더
 scratch/
+
+# 참가자 배포용 경량 CSV는 저장소에 포함
+!shinhan/data/

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "aifinance": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "aifinance.mcp_server"]
+    }
+  }
+}

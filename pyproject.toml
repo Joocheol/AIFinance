@@ -16,6 +16,10 @@ dependencies = [
     "jupyterlab>=4.2",
     "ipykernel>=6.29",
     "pydantic>=2.7",
+    "duckdb>=1.1",
+    "fastembed>=0.4",
+    "mcp>=1.2",
+    "tabulate>=0.10.0",
 ]
 
 [build-system]

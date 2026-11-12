@@ -15,7 +15,8 @@ from .schema import TermSheet, Underlying
 MONTH = r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
 DATE = rf"{MONTH}\s+\d{{1,2}},\s+\d{{4}}"
 PCT = r"(\d{1,3}(?:\.\d+)?)\s?%"
-SEP = r"\*?\s*:?\s*\|?\s*"  # 'Label*: ' / 'Label | ' 등 구분자
+SEP = r"\s?[*†‡]?\s?(?:\d\s?)?:?\s*\|?\s*"  # 'Label*: ' / 'Label | ' / 각주 'Label 1 : |' 'Label † :' 등 구분자
+MIN = r"(?:[Aa]t least |[Aa]t most |[Aa]pproximately )?"  # 예비본의 미확정 표기: "At least 8.00%"
 
 
 # ---------------------------------------------------------------- 변환 도우미
@@ -34,6 +35,7 @@ def _first(text: str, patterns: list[str], flags=re.I) -> str | None:
 
 
 def _pct(text: str, patterns: list[str]) -> float | None:
+    """첫 번째로 맞는 패턴의 % 값을 소수로."""
     v = _first(text, patterns)
     return round(float(v) / 100, 6) if v else None
 
@@ -102,6 +104,34 @@ def classify(title: str | None) -> str:
     return "other"
 
 
+# 자주 나오는 기초자산의 표준 이름 → 티커. (모듈 6 집계용. 실습으로 확장)
+UNDERLYING_ALIASES = {
+    "S&P 500 Index": "SPX",
+    "Russell 2000 Index": "RTY",
+    "Nasdaq-100 Index": "NDX",
+    "Dow Jones Industrial Average": "INDU",
+    "EURO STOXX 50 Index": "SX5E",
+    "Nasdaq-100 Technology Sector Index": "NDXT",
+    "S&P 500 Futures Excess Return Index": "SPXFP",
+    "MerQube US Large-Cap Vol Advantage Index": "MQUSLVA",
+    "MerQube US Tech+ Vol Advantage Index": "MQUSTVA",
+    "MerQube US Gold Vol Advantage Index": "MQUSGVA",
+    "MSCI EAFE Index": "MXEA",
+    "iShares MSCI EAFE ETF": "EFA",
+    "TOPIX Index": "TPX",
+    "FTSE 100 Index": "UKX",
+}
+CORP_SUFFIX = r",\s*(Inc\.|Ltd\.|N\.V\.|S\.A\.|plc|L\.P\.|Co\.|Corp\.|LLC)"
+
+
+def normalize_underlying(name: str) -> str:
+    """'the S&P 500 ® Index' → 'S&P 500 Index'. 상표 기호·SM 표기·관사 제거."""
+    n = re.sub(r"[®™℠]|(?<=\w)SM\b", "", name)
+    n = re.sub(r"^(?:the|The)\s+", "", n)
+    n = re.sub(r"-\s+", "-", n)  # 'Nasdaq- 100' → 'Nasdaq-100'
+    return re.sub(r"\s+", " ", n).strip(" ,")
+
+
 def extract_underlyings(title: str | None, text: str) -> tuple[list[Underlying], str | None]:
     head = text[:8000]
     if re.search(r"Least Performing|Lesser Performing|Worst Performing", (title or "") + head[:3000], re.I):
@@ -115,16 +145,18 @@ def extract_underlyings(title: str | None, text: str) -> tuple[list[Underlying],
         m = re.search(r"(?:Linked to|Based on)\s+(?:the\s+)?(.+?)\s+due\s", title)
         if m:
             body = re.sub(r"^(?:Least|Lesser|Worst) Perform\w* of\s+(?:the\s+)?", "", m.group(1), flags=re.I)
-            names = [n.strip(" ,") for n in re.split(r",\s*(?:and\s+)?(?:the\s+)?|\s+and\s+(?:the\s+)?", body) if n.strip(" ,")]
+            body = re.sub(CORP_SUFFIX, r" \1", body)  # 'Affirm Holdings, Inc.' 가 쉼표에서 쪼개지지 않게
+            names = [normalize_underlying(n) for n in re.split(r",\s*(?:and\s+)?(?:the\s+)?|\s+and\s+(?:the\s+)?", body)]
+            names = [n for n in names if n]
     unds = []
     for n in names:
         kind = (
             "etf" if re.search(r"ETF|Fund|Trust", n) else
-            "index" if re.search(r"Index", n) else
-            "stock" if re.search(r"Stock|Shares|Inc\.|Corporation|Depositary|Company|plc", n, re.I) else
+            "index" if re.search(r"Index|Average|Rate\b", n) else
+            "stock" if re.search(r"Stock|Shares|Inc\.|Corporation|Depositary|Company|plc|Ltd\.", n, re.I) else
             "other"
         )
-        unds.append(Underlying(name=n, kind=kind))
+        unds.append(Underlying(name=n, ticker=UNDERLYING_ALIASES.get(n), kind=kind))
     return unds, basket
 
 
@@ -137,10 +169,10 @@ def extract(text: str, accession_number: str) -> TermSheet:
     unds, basket = extract_underlyings(title, t)
 
     coupon_rate = _pct(flat, [
-        rf"Contingent Interest Rate{SEP}{PCT} per annum",
-        rf"contingent coupon rate ?”? is {PCT} per annum",
-        rf"Contingent Coupon Rate{SEP}{PCT} per annum",
-        rf"Interest Rate{SEP}{PCT} per annum",
+        rf"Contingent Interest Rate{SEP}{MIN}{PCT} per annum",
+        rf"contingent coupon rate ?”? (?:is|will be) {MIN}{PCT} per annum",
+        rf"Contingent Coupon Rate{SEP}{MIN}{PCT} per annum",
+        rf"Interest Rate{SEP}{MIN}{PCT} per annum",
     ])
     review_dates = _date_list(flat, r"(?:Interest Review Dates|Review Dates|Observation Dates|Calculation days|Coupon Determination Dates)")
     autocall_dates = _date_list(flat, r"(?:Autocall Review Dates|Call Determination Dates|Review Dates)")
@@ -162,8 +194,8 @@ def extract(text: str, accession_number: str) -> TermSheet:
     else:
         downside = None
 
-    leverage = _first(flat, [rf"Upside Leverage Factor{SEP}(\d+(?:\.\d+)?)", r"leverage factor ?”? is (\d+(?:\.\d+)?)"])
-    participation = _pct(flat, [rf"(?:Upside )?Participation Rate{SEP}{PCT}", rf"upside participation rate ?”? is {PCT}"])
+    leverage = _first(flat, [rf"Upside Leverage Factor{SEP}{MIN}(\d+(?:\.\d+)?)", r"leverage factor ?”? is (\d+(?:\.\d+)?)"])
+    participation = _pct(flat, [rf"(?:Upside )?Participation Rate{SEP}{MIN}{PCT}", rf"upside participation rate ?”? is {PCT}"])
 
     return TermSheet(
         accession_number=accession_number,
@@ -201,9 +233,22 @@ def extract(text: str, accession_number: str) -> TermSheet:
         barrier_pct=barrier,
         buffer_pct=buffer,
         upside_participation=float(leverage) if leverage else participation,
-        cap_pct=_pct(flat, [rf"Maximum (?:Upside )?Return{SEP}{PCT}", rf"maximum return ?”? is {PCT}"]),
-        digital_return_pct=_pct(flat, [rf"Digital Return{SEP}{PCT}"]),
-        estimated_value_per_1000=_num(_first(text, [
-            r"estimated value of the (?:notes|securities)[^$]{0,200}?\$\s?([\d,]+\.\d+)"
-        ], flags=re.I | re.S)),
+        cap_pct=_pct(flat, [rf"Maximum (?:Upside )?Return{SEP}{MIN}{PCT}", rf"maximum return ?”? is {PCT}"]),
+        digital_return_pct=_pct(flat, [rf"Digital Return{SEP}{MIN}{PCT}"]),
+        estimated_value_per_1000=estimated_value(text),
     )
+
+
+def estimated_value(text: str) -> float | None:
+    """JPM 추정가치를 액면 $1,000 기준으로. UBS 형식처럼 액면이 $10 이면 100배로 환산."""
+    m = re.search(r"estimated value of the (?:notes|securities)[^$]{0,200}?\$\s?([\d,]+\.\d+)(?:\s+per\s+\$\s?([\d,]+))?",
+                  text, re.I | re.S)
+    if not m:
+        return None
+    value = _num(m.group(1))
+    if m.group(2):  # "... $9.901 per $10"
+        denomination = _num(m.group(2))
+    else:  # "... per unit" → "$10 principal amount per unit" 같은 액면 표기를 찾는다
+        d = re.search(r"\$\s?(10|25|100|1,000) (?:stated )?principal amount per (?:unit|security|note)", text, re.I)
+        denomination = _num(d.group(1)) if d else 1000.0
+    return round(value * 1000 / denomination, 4)

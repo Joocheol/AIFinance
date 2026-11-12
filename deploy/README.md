@@ -19,7 +19,7 @@ JP Morgan 구조화 노트 1만여 개 데이터(SEC 공시, 2025-10~2026-09)를
 5. "배포가 완료되었습니다"가 나오면 왼쪽 **출력**에서 `mcpUrl` 값을 복사합니다.
    예: `https://jpm-mcp-ab12cd.koreacentral.azurecontainerapps.io/mcp`
 
-> 배포가 `MissingSubscriptionRegistration` 오류로 실패하면: Azure 포털 → **구독** → 내 구독 → **리소스 공급자** →
+> 리소스 공급자(Microsoft.App)는 배포할 때 자동으로 등록됩니다(2026-11-12 시험에서 확인). 그래도 `MissingSubscriptionRegistration` 오류로 실패하면: Azure 포털 → **구독** → 내 구독 → **리소스 공급자** →
 > `Microsoft.App` 검색 → **등록** → 1~2분 뒤 다시 배포합니다.
 
 ## 2. Claude에 연결 (약 2분)
@@ -33,7 +33,7 @@ JP Morgan 구조화 노트 1만여 개 데이터(SEC 공시, 2025-10~2026-09)를
 > JPM 424B2 데이터의 구조를 먼저 확인하고, 상품 유형별 상품 수와 평균 연 쿠폰을 표로 보여줘. 쿠폰 값이 비어 있는 상품 수도 함께 알려줘.
 
 Claude가 `describe_database`, `query_products` 도구를 호출하는 과정이 화면에 보이면 성공입니다.
-처음 질문은 서버가 깨어나느라 10~20초 걸릴 수 있습니다.
+서버가 쉬고 있었다면 첫 질문은 깨어나느라 5~10초 더 걸립니다 (실측: 첫 응답 4.5초).
 
 ## 수업 후 정리 (중요)
 

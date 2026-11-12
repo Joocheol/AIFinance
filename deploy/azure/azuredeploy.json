@@ -25,7 +25,7 @@
       "type": "int",
       "defaultValue": 0,
       "allowedValues": [ 0, 1 ],
-      "metadata": { "description": "0 = 쓰지 않을 때 꺼짐(비용 거의 없음, 첫 요청이 10~20초 느림). 1 = 항상 켜짐(수업 중 강사 서버용)." }
+      "metadata": { "description": "0 = 쓰지 않을 때 꺼짐(비용 거의 없음, 깨어날 때 첫 요청이 약 5초 느림). 1 = 항상 켜짐(수업 중 강사 서버용)." }
     }
   },
   "variables": {

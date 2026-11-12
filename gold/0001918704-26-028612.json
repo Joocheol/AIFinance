@@ -1,0 +1,41 @@
+{
+  "accession_number": "0001918704-26-028612",
+  "product_name": "Review Notes Linked to the MerQube US Tech+ Vol Advantage Index due August 27, 2029",
+  "product_family": "autocall_call_premium",
+  "principal_amount_usd": 497000,
+  "cusip": "46661PUY1",
+  "pricing_date": "2026-09-22",
+  "issue_date": "2026-09-25",
+  "maturity_date": "2029-08-27",
+  "underlyings": [
+    {"name": "MerQube US Tech+ Vol Advantage Index", "ticker": "MQUSTVA", "kind": "index", "weight": null}
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": true,
+  "autocall_frequency": "monthly",
+  "autocall_trigger_pct": 0.95,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.15,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 926.20,
+  "_evidence": {
+    "principal_amount_usd": "$497,000",
+    "cusip": "CUSIP: 46661PUY1",
+    "pricing_date": "Pricing Date: September 22, 2026",
+    "issue_date": "On or about September 25, 2026",
+    "maturity_date": "Maturity Date*: August 27, 2029",
+    "underlyings": "(Bloomberg ticker: MQUSTVA)",
+    "autocall_frequency": "Review Dates*: March 22, 2027, April 22",
+    "autocall_trigger_pct": "Call Value: 95.00% of the Initial Value",
+    "buffer_pct": "Buffer Amount: 15.00%",
+    "estimated_value_per_1000": "was $926.20 per $1,000 principal amount"
+  }
+}

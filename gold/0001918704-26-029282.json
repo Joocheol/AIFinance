@@ -1,0 +1,58 @@
+{
+  "accession_number": "0001918704-26-029282",
+  "product_name": "Callable Contingent Interest Notes Linked to the Least Performing of the Nasdaq-100 Index®, the Russell 2000® Index and the S&P 500® Index due September 28, 2028",
+  "product_family": "issuer_call_contingent_coupon",
+  "principal_amount_usd": 395000,
+  "cusip": "46661PB55",
+  "pricing_date": "2026-09-25",
+  "issue_date": "2026-09-30",
+  "maturity_date": "2028-09-28",
+  "underlyings": [
+    {
+      "name": "Nasdaq-100 Index",
+      "ticker": "NDX",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "Russell 2000 Index",
+      "ticker": "RTY",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "S&P 500 Index",
+      "ticker": "SPX",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "worst_of",
+  "coupon_rate_pa": 0.081,
+  "coupon_frequency": "monthly",
+  "coupon_barrier_pct": 0.7,
+  "memory_coupon": false,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": true,
+  "downside_type": "barrier",
+  "barrier_pct": 0.7,
+  "buffer_pct": null,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 957.1,
+  "_evidence": {
+    "principal_amount_usd": "Total | $395,000",
+    "cusip": "CUSIP: 46661PB55",
+    "pricing_date": "Pricing Date: September 25, 2026",
+    "issue_date": "On or about September 30, 2026",
+    "maturity_date": "Maturity Date*: September 28, 2028",
+    "coupon_rate_pa": "Interest Rate: 8.10% per annum",
+    "coupon_frequency": "payable at a rate of 0.675% per month",
+    "coupon_barrier_pct": "70.00% of its Initial Value",
+    "barrier_pct": "Interest Barrier/Trigger Value",
+    "estimated_value_per_1000": "was $957.10 per $1,000 principal amount"
+  }
+}

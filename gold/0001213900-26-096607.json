@@ -1,0 +1,42 @@
+{
+  "accession_number": "0001213900-26-096607",
+  "product_name": "Capped Buffered Return Enhanced Notes due September 6, 2028",
+  "product_family": "leveraged_buffer",
+  "principal_amount_usd": 51000,
+  "cusip": "46661K6R4",
+  "pricing_date": "2026-08-31",
+  "issue_date": "2026-09-03",
+  "maturity_date": "2028-09-06",
+  "underlyings": [
+    {"name": "EURO STOXX 50® Index", "ticker": "SX5E", "kind": "index", "weight": null}
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.10,
+  "upside_participation": 2.00,
+  "cap_pct": 0.3175,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 975.80,
+  "_evidence": {
+    "_note": "Six separate offerings in one supplement; note-specific fields use the first-listed SX5E Notes",
+    "principal_amount_usd": "$51,000 (SX5E Notes)",
+    "cusip": "SX5E ... 31.75% / $1,317.50 46661K6R4",
+    "pricing_date": "Pricing Date: August 31, 2026",
+    "issue_date": "On or about September 3, 2026",
+    "maturity_date": "Maturity Date*: September 6, 2028",
+    "underlyings": "EURO STOXX 50® Index SX5E",
+    "buffer_pct": "Buffer Amount: 10.00%",
+    "upside_participation": "Upside Leverage Factor: 2.00",
+    "cap_pct": "SX5E 6,420.16 31.75% / $1,317.50",
+    "estimated_value_per_1000": "was $975.80, $986.40, ... SX5E Notes"
+  }
+}

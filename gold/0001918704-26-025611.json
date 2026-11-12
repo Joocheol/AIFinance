@@ -1,0 +1,43 @@
+{
+  "accession_number": "0001918704-26-025611",
+  "product_name": "Uncapped Buffered Return Enhanced Notes Linked to the Lesser Performing of the iShares® MSCI EAFE ETF and the EURO STOXX 50® Index due August 30, 2029",
+  "product_family": "leveraged_buffer",
+  "principal_amount_usd": 552000,
+  "cusip": "46661MJ54",
+  "pricing_date": "2026-08-27",
+  "issue_date": "2026-09-01",
+  "maturity_date": "2029-08-30",
+  "underlyings": [
+    {"name": "iShares® MSCI EAFE ETF", "ticker": "EFA", "kind": "etf", "weight": null},
+    {"name": "EURO STOXX 50® Index", "ticker": "SX5E", "kind": "index", "weight": null}
+  ],
+  "basket_type": "worst_of",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.30,
+  "upside_participation": 1.45,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 976.80,
+  "_evidence": {
+    "principal_amount_usd": "$552,000",
+    "cusip": "CUSIP: 46661MJ54",
+    "pricing_date": "Pricing Date: August 27, 2026",
+    "issue_date": "On or about September 1, 2026",
+    "maturity_date": "Maturity Date*: August 30, 2029",
+    "underlyings": "(Bloomberg ticker: SX5E) ... (Bloomberg ticker: EFA)",
+    "basket_type": "Lesser Performing Underlying Return",
+    "buffer_pct": "Buffer Amount: 30.00%",
+    "upside_participation": "Upside Leverage Factor: 1.45",
+    "cap_pct": "uncapped return of 1.45 times",
+    "estimated_value_per_1000": "was $976.80 per $1,000 principal amount"
+  }
+}

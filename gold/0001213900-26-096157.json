@@ -1,0 +1,56 @@
+{
+  "accession_number": "0001213900-26-096157",
+  "product_name": "Uncapped Accelerated Barrier Notes Linked to the Least Performing of the EURO STOXX 50® Index, the iShares® MSCI EAFE ETF and the iShares® MSCI Emerging Markets ETF due September 3, 2031",
+  "product_family": "leveraged_barrier",
+  "principal_amount_usd": 1217000,
+  "cusip": "46661MCQ5",
+  "pricing_date": "2026-08-28",
+  "issue_date": "2026-09-02",
+  "maturity_date": "2031-09-03",
+  "underlyings": [
+    {
+      "name": "EURO STOXX 50 Index",
+      "ticker": "SX5E",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "iShares MSCI EAFE ETF",
+      "ticker": "EFA",
+      "kind": "etf",
+      "weight": null
+    },
+    {
+      "name": "iShares MSCI Emerging Markets ETF",
+      "ticker": "EEM",
+      "kind": "etf",
+      "weight": null
+    }
+  ],
+  "basket_type": "worst_of",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "barrier",
+  "barrier_pct": 0.5,
+  "buffer_pct": null,
+  "upside_participation": 2.7,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 975.9,
+  "_evidence": {
+    "principal_amount_usd": "$1,217,000",
+    "cusip": "CUSIP: 46661MCQ5",
+    "pricing_date": "Pricing Date: August 28, 2026",
+    "issue_date": "September 2, 2026",
+    "maturity_date": "Maturity Date*: September 3, 2031",
+    "barrier_pct": "50.00% of its Initial Value",
+    "upside_participation": "Upside Leverage Factor: 2.70",
+    "estimated_value_per_1000": "was $975.90 per $1,000 principal amount"
+  }
+}

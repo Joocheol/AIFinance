@@ -12,3 +12,6 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# 실습용 임시 폴더
+scratch/

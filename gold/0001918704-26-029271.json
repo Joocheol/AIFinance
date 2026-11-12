@@ -1,0 +1,43 @@
+{
+  "accession_number": "0001918704-26-029271",
+  "product_name": "Capped Dual Directional Buffered Equity Notes Linked to the Lesser Performing of the Nasdaq-100 Index® and the Russell 2000® Index due December 30, 2027",
+  "product_family": "dual_directional",
+  "principal_amount_usd": 555000,
+  "cusip": "46661PYT8",
+  "pricing_date": "2026-09-25",
+  "issue_date": "2026-09-30",
+  "maturity_date": "2027-12-30",
+  "underlyings": [
+    {"name": "Nasdaq-100 Index®", "ticker": "NDX", "kind": "index", "weight": null},
+    {"name": "Russell 2000® Index", "ticker": "RTY", "kind": "index", "weight": null}
+  ],
+  "basket_type": "worst_of",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.15,
+  "upside_participation": null,
+  "cap_pct": 0.155,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 964.30,
+  "_evidence": {
+    "principal_amount_usd": "$555,000",
+    "cusip": "CUSIP: 46661PYT8",
+    "pricing_date": "Pricing Date: September 25, 2026",
+    "issue_date": "On or about September 30, 2026",
+    "maturity_date": "Maturity Date*: December 30, 2027",
+    "underlyings": "(Bloomberg ticker: NDX) ... (ticker: RTY)",
+    "basket_type": "Lesser Performing Index Return",
+    "buffer_pct": "Buffer Amount: 15.00%",
+    "upside_participation": "capped, unleveraged exposure (no factor)",
+    "cap_pct": "Maximum Upside Return: 15.50%",
+    "estimated_value_per_1000": "was $964.30 per $1,000 principal amount"
+  }
+}

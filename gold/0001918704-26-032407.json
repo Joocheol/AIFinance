@@ -1,0 +1,56 @@
+{
+  "accession_number": "0001918704-26-032407",
+  "product_name": "Uncapped Dual Directional Accelerated Barrier Notes Linked to the Least Performing of the Dow Jones Industrial Average®, the Nasdaq-100 Index® and the S&P 500® Index due October 25, 2029",
+  "product_family": "dual_directional",
+  "principal_amount_usd": 1606000,
+  "cusip": "46661PUK1",
+  "pricing_date": "2026-10-21",
+  "issue_date": "2026-10-26",
+  "maturity_date": "2029-10-25",
+  "underlyings": [
+    {
+      "name": "Dow Jones Industrial Average",
+      "ticker": "INDU",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "Nasdaq-100 Index",
+      "ticker": "NDX",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "S&P 500 Index",
+      "ticker": "SPX",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "worst_of",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "barrier",
+  "barrier_pct": 0.7,
+  "buffer_pct": null,
+  "upside_participation": 1.4,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 978.5,
+  "_evidence": {
+    "principal_amount_usd": "Total | $1,606,000",
+    "cusip": "CUSIP: 46661PUK1",
+    "pricing_date": "Pricing Date: October 21, 2026",
+    "issue_date": "On or about October 26, 2026",
+    "maturity_date": "Maturity Date*: October 25, 2029",
+    "barrier_pct": "70.00% of its Initial Value",
+    "upside_participation": "Upside Leverage Factor: 1.40",
+    "estimated_value_per_1000": "was $978.50 per $1,000 principal amount"
+  }
+}

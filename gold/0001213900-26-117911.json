@@ -1,0 +1,45 @@
+{
+  "accession_number": "0001213900-26-117911",
+  "product_name": "Buffered Digital Notes Linked to the 10-Year U.S. Dollar SOFR ICE Swap Rate due November 23, 2027",
+  "product_family": "digital",
+  "principal_amount_usd": 500000.0,
+  "cusip": "46660NFC2",
+  "pricing_date": "2026-11-06",
+  "issue_date": "2026-11-12",
+  "maturity_date": "2027-11-23",
+  "underlyings": [
+    {
+      "name": "10-Year U.S. Dollar SOFR ICE Swap Rate",
+      "ticker": "USISSO10",
+      "kind": "other",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.0905,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": 0.1,
+  "estimated_value_per_1000": 978.1,
+  "_evidence": {
+    "principal_amount_usd": "Total | $500,000",
+    "cusip": "CUSIP: | 46660NFC2",
+    "pricing_date": "Dated November 6, 2026",
+    "issue_date": "On or about November 12, 2026",
+    "maturity_date": "Maturity Date †† : | November 23, 2027",
+    "underlyings": "Bloomberg Screen USISSO10 Page",
+    "buffer_pct": "Buffer Percentage: | 9.05%",
+    "digital_return_pct": "Contingent Digital Return: | 10.00%",
+    "estimated_value_per_1000": "was $978.10 per $1,000 principal"
+  }
+}

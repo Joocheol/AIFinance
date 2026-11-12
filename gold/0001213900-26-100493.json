@@ -1,0 +1,46 @@
+{
+  "accession_number": "0001213900-26-100493",
+  "product_name": "Autocallable Buffered Enhanced Participation Equity Notes due 2028",
+  "product_family": "autocall_call_premium",
+  "principal_amount_usd": 2325000.0,
+  "cusip": "46661MQN7",
+  "pricing_date": "2026-09-14",
+  "issue_date": "2026-09-17",
+  "maturity_date": "2028-09-18",
+  "underlyings": [
+    {
+      "name": "EURO STOXX 50® Index",
+      "ticker": "SX5E",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": true,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": 1.0,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.1,
+  "upside_participation": 2.0,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 974.8,
+  "_evidence": {
+    "principal_amount_usd": "$2,325,000 in the aggregate",
+    "cusip": "CUSIP no.: 46661MQN7",
+    "pricing_date": "Trade date: September 14, 2026",
+    "issue_date": "(settlement date): September 17, 2026",
+    "maturity_date": "Stated maturity date: September 18, 2028",
+    "underlyings": "Bloomberg symbol, “SX5E Index”",
+    "autocall_trigger_pct": "Call level: 100.00% of the initial",
+    "buffer_pct": "Buffer amount: 10.00%",
+    "upside_participation": "Upside participation rate: 2.00",
+    "estimated_value_per_1000": "was $974.80 per $1,000 principal"
+  }
+}

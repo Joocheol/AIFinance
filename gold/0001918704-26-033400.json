@@ -1,0 +1,45 @@
+{
+  "accession_number": "0001918704-26-033400",
+  "product_name": "Review Notes Linked to the MerQube US Large-Cap Vol Advantage Index due October 31, 2036",
+  "product_family": "autocall_call_premium",
+  "principal_amount_usd": 50000,
+  "cusip": "46661PSW8",
+  "pricing_date": "2026-10-28",
+  "issue_date": "2026-10-30",
+  "maturity_date": "2036-10-31",
+  "underlyings": [
+    {
+      "name": "MerQube US Large-Cap Vol Advantage Index",
+      "ticker": "MQUSLVA",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": true,
+  "autocall_frequency": "quarterly",
+  "autocall_trigger_pct": 1.0,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.3,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 858.4,
+  "_evidence": {
+    "principal_amount_usd": "Total | $50,000",
+    "cusip": "CUSIP: 46661PSW8",
+    "pricing_date": "Pricing Date: October 28, 2026",
+    "issue_date": "On or about October 30, 2026",
+    "maturity_date": "Maturity Date*: October 31, 2036",
+    "autocall_frequency": "January 28, 2028, April 28, 2028, July",
+    "autocall_trigger_pct": "Call Value: 100.00% of the Initial Value",
+    "buffer_pct": "Buffer Amount: 30.00%",
+    "estimated_value_per_1000": "was $858.40 per $1,000 principal amount"
+  }
+}

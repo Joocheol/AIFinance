@@ -1,0 +1,45 @@
+{
+  "accession_number": "0001213900-26-115430",
+  "product_name": "Capped Enhanced Participation Equity Notes due 2027",
+  "product_family": "other",
+  "principal_amount_usd": 750000.0,
+  "cusip": "46661QWL5",
+  "pricing_date": "2026-10-30",
+  "issue_date": "2026-11-04",
+  "maturity_date": "2027-12-01",
+  "underlyings": [
+    {
+      "name": "Common Stock of Amazon.com, Inc.",
+      "ticker": "AMZN",
+      "kind": "stock",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "none",
+  "barrier_pct": null,
+  "buffer_pct": null,
+  "upside_participation": 2.0,
+  "cap_pct": 0.4144,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 981.7,
+  "_evidence": {
+    "principal_amount_usd": "$750,000 in the aggregate",
+    "cusip": "CUSIP no.: 46661QWL5",
+    "pricing_date": "Trade date: October 30, 2026",
+    "issue_date": "(settlement date): November 4, 2026",
+    "maturity_date": "Stated maturity date: December 1, 2027",
+    "underlyings": "Bloomberg symbol, “AMZN UW Equity”",
+    "upside_participation": "Upside participation rate: 2.00",
+    "cap_pct": "Maximum settlement amount: $1,414.40",
+    "estimated_value_per_1000": "was $981.70 per $1,000 principal"
+  }
+}

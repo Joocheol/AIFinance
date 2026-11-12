@@ -1,0 +1,45 @@
+{
+  "accession_number": "0001839882-26-040368",
+  "product_name": "Digital Buffered Notes Linked to the S&P 500® Index due September 1, 2027",
+  "product_family": "digital",
+  "principal_amount_usd": 22191000,
+  "cusip": "46661KKC1",
+  "pricing_date": "2026-08-14",
+  "issue_date": "2026-08-19",
+  "maturity_date": "2027-09-01",
+  "underlyings": [
+    {
+      "name": "S&P 500® Index",
+      "ticker": "SPX",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.1,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": 0.088,
+  "estimated_value_per_1000": 988.4,
+  "_evidence": {
+    "principal_amount_usd": "$22,191,000 Digital Buffered Notes",
+    "cusip": "CUSIP: | 46661KKC1",
+    "pricing_date": "Pricing Date: | August 14, 2026",
+    "issue_date": "On or about August 19, 2026",
+    "maturity_date": "Maturity Date*: | September 1, 2027",
+    "underlyings": "S&P 500 ® Index (Bloomberg ticker: SPX)",
+    "buffer_pct": "Buffer Amount: | 10.00%",
+    "digital_return_pct": "Contingent Digital Return: | 8.80%",
+    "estimated_value_per_1000": "was $988.40 per $1,000 principal amount"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "accession_number": "0001213900-26-091449",
+  "product_name": "Market Linked Securities — Auto-Callable with Contingent Coupon with Memory Feature and Contingent Downside Principal at Risk Securities Linked to the Common Stock of Morgan Stanley due August 22, 2028",
+  "product_family": "autocall_contingent_coupon",
+  "principal_amount_usd": 1456000,
+  "cusip": "46661KME5",
+  "pricing_date": "2026-08-17",
+  "issue_date": "2026-08-20",
+  "maturity_date": "2028-08-22",
+  "underlyings": [
+    {
+      "name": "Morgan Stanley common stock",
+      "ticker": "MS",
+      "kind": "stock",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": 0.1,
+  "coupon_frequency": "quarterly",
+  "coupon_barrier_pct": 0.7,
+  "memory_coupon": true,
+  "autocall": true,
+  "autocall_frequency": "quarterly",
+  "autocall_trigger_pct": 1.0,
+  "issuer_callable": false,
+  "downside_type": "barrier",
+  "barrier_pct": 0.7,
+  "buffer_pct": null,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 960.0,
+  "_evidence": {
+    "principal_amount_usd": "$1,456,000 Market Linked Securities",
+    "cusip": "CUSIP: | 46661KME5",
+    "pricing_date": "Pricing Date: | August 17, 2026",
+    "issue_date": "Issue Date: | August 20, 2026",
+    "maturity_date": "Maturity Date 1 : | August 22, 2028",
+    "coupon_rate_pa": "coupon rate ” is 10.00% per annum",
+    "coupon_frequency": "Quarterly, on the third business day",
+    "coupon_barrier_pct": "equal to 70% of the starting price",
+    "memory_coupon": "plus all previously unpaid contingent",
+    "autocall_frequency": "quarterly calculation days from November",
+    "autocall_trigger_pct": "or equal to the starting price, we will",
+    "barrier_pct": "$152.747, which is equal to 70% of the",
+    "estimated_value_per_1000": "was $960.00 per security"
+  }
+}

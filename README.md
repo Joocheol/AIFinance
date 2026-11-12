@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 0 | [코스 소개와 환경 설정](notebooks/00_코스소개_환경설정.ipynb) | 코스 구조, 424B2 해부, 데이터 사전, Claude Desktop 사용법 | ✅ |
 | 1 | [EDGAR 데이터 수집](notebooks/01_EDGAR_데이터_수집.ipynb) | submissions·전문검색 API, 표본 추출, 예비본·확정본 구분, 상품명 추출 | ✅ |
-| 2 | AI 정보 추출 | Claude로 텀시트 → JSON 추출, 원문 대조 검증, 정확도 측정 | 예정 |
+| 2 | [AI 정보 추출](notebooks/02_AI_정보추출.ipynb) | 스키마 정의, Claude로 정답셋 라벨링·검수, 규칙 기반 추출기 채점·오류 분석 | ✅ |
 | 3 | 상품 DB 구축 | DuckDB 스키마, 예비본–확정본 병합, 품질 점검 | 예정 |
 | 4 | 벡터화와 RAG | 청킹, 로컬 임베딩, Chroma, 하이브리드 검색, MCP 서버로 Claude 연결 | 예정 |
 | 5 | RAG 평가 | 정답셋 구축, 검색·답변 정확도 측정 | 예정 |
@@ -39,7 +39,9 @@ SEC는 자동화 요청에 연락처가 담긴 User-Agent와 초당 10건 이하
 
 ```
 notebooks/          강의 노트북 (모듈별)
-src/aifinance/      공용 코드 (EDGAR 클라이언트, 설정, 차트)
+src/aifinance/      공용 코드 (EDGAR 클라이언트, 스키마, 추출기, 채점, 차트)
+prompts/            Claude Desktop용 프롬프트 (정답셋 라벨링 지침 등)
+gold/               Claude가 만들고 검수한 정답셋 (27건, dev/test 분할)
 data/               수집 데이터 (git 제외)
   raw/              공시 원문 HTML
   interim/          목록·평문 parquet

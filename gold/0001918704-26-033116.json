@@ -1,0 +1,45 @@
+{
+  "accession_number": "0001918704-26-033116",
+  "product_name": "Capped Buffered Return Enhanced Notes Linked to the iShares® MSCI EAFE ETF due November 1, 2029",
+  "product_family": "leveraged_buffer",
+  "principal_amount_usd": 295000,
+  "cusip": "46661QPE9",
+  "pricing_date": "2026-10-27",
+  "issue_date": "2026-10-30",
+  "maturity_date": "2029-11-01",
+  "underlyings": [
+    {
+      "name": "iShares MSCI EAFE ETF",
+      "ticker": "EFA",
+      "kind": "etf",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.15,
+  "upside_participation": 1.5,
+  "cap_pct": 0.425,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 980.9,
+  "_evidence": {
+    "principal_amount_usd": "Total | $295,000",
+    "cusip": "CUSIP: 46661QPE9",
+    "pricing_date": "Pricing Date: October 27, 2026",
+    "issue_date": "On or about October 30, 2026",
+    "maturity_date": "Maturity Date*: November 1, 2029",
+    "buffer_pct": "Buffer Amount: 15.00%",
+    "upside_participation": "Upside Leverage Factor: 1.50",
+    "cap_pct": "Maximum Return: 42.50%",
+    "estimated_value_per_1000": "was $980.90 per $1,000 principal amount"
+  }
+}

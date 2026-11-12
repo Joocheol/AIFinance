@@ -1,0 +1,46 @@
+{
+  "accession_number": "0001213900-26-091167",
+  "product_name": "Capped Buffered Enhanced Participation Equity Notes due 2028",
+  "product_family": "leveraged_buffer",
+  "principal_amount_usd": 860000.0,
+  "cusip": "46661KGN2",
+  "pricing_date": "2026-08-14",
+  "issue_date": "2026-08-19",
+  "maturity_date": "2028-01-27",
+  "underlyings": [
+    {
+      "name": "MSCI EAFE® Index",
+      "ticker": "MXEA",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.05,
+  "upside_participation": 1.5,
+  "cap_pct": 0.213,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 983.2,
+  "_evidence": {
+    "principal_amount_usd": "$860,000 in the aggregate",
+    "cusip": "CUSIP no.: 46661KGN2",
+    "pricing_date": "Trade date: August 14, 2026",
+    "issue_date": "(settlement date): August 19, 2026",
+    "maturity_date": "Stated maturity date: January 27, 2028",
+    "underlyings": "Bloomberg symbol, “MXEA Index”",
+    "buffer_pct": "Buffer amount: 5.00%",
+    "upside_participation": "Upside participation rate: 1.50",
+    "cap_pct": "Maximum settlement amount: $1,213.00",
+    "estimated_value_per_1000": "was $983.20 per $1,000 principal"
+  }
+}

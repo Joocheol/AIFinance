@@ -1,0 +1,45 @@
+{
+  "accession_number": "0001918704-26-025032",
+  "product_name": "Capped Dual Directional Buffered Equity Notes Linked to the S&P 500® Index due August 30, 2028",
+  "product_family": "dual_directional",
+  "principal_amount_usd": 3250000.0,
+  "cusip": "46661KKT4",
+  "pricing_date": "2026-08-25",
+  "issue_date": "2026-08-28",
+  "maturity_date": "2028-08-30",
+  "underlyings": [
+    {
+      "name": "S&P 500® Index",
+      "ticker": "SPX",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.15,
+  "upside_participation": null,
+  "cap_pct": 0.258,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 991.3,
+  "_evidence": {
+    "principal_amount_usd": "Total | $3,250,000",
+    "cusip": "CUSIP: 46661KKT4",
+    "pricing_date": "Pricing Date: August 25, 2026",
+    "issue_date": "On or about August 28, 2026",
+    "maturity_date": "Maturity Date*: August 30, 2028",
+    "underlyings": "(Bloomberg ticker: SPX)",
+    "buffer_pct": "Buffer Amount: 15.00%",
+    "cap_pct": "Maximum Upside Return: 25.80%",
+    "estimated_value_per_1000": "was $991.30 per $1,000 principal"
+  }
+}

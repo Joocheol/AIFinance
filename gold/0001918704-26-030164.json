@@ -1,0 +1,49 @@
+{
+  "accession_number": "0001918704-26-030164",
+  "product_name": "Auto Callable Contingent Interest Notes Linked to the MerQube US Gold Vol Advantage Index due October 4, 2029",
+  "product_family": "autocall_contingent_coupon",
+  "principal_amount_usd": 140000,
+  "cusip": "46661PUX3",
+  "pricing_date": "2026-09-30",
+  "issue_date": "2026-10-05",
+  "maturity_date": "2029-10-04",
+  "underlyings": [
+    {
+      "name": "MerQube US Gold Vol Advantage Index",
+      "ticker": "MQUSGVA",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": 0.13,
+  "coupon_frequency": "monthly",
+  "coupon_barrier_pct": 0.65,
+  "memory_coupon": true,
+  "autocall": true,
+  "autocall_frequency": "monthly",
+  "autocall_trigger_pct": 0.9,
+  "issuer_callable": false,
+  "downside_type": "barrier",
+  "barrier_pct": 0.65,
+  "buffer_pct": null,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 940.0,
+  "_evidence": {
+    "principal_amount_usd": "Total | $140,000",
+    "cusip": "CUSIP: 46661PUX3",
+    "pricing_date": "Pricing Date: September 30, 2026",
+    "issue_date": "On or about October 5, 2026",
+    "maturity_date": "Maturity Date*: October 4, 2029",
+    "coupon_rate_pa": "13.00% per annum, payable at a rate of",
+    "coupon_frequency": "payable at a rate of 1.08333% per month",
+    "coupon_barrier_pct": "65.00% of the Initial Value",
+    "memory_coupon": "plus any previously unpaid Contingent",
+    "autocall_frequency": "November 30, 2026, December 30, 2026",
+    "autocall_trigger_pct": "Call Value: 90.00% of the Initial Value",
+    "barrier_pct": "Interest Barrier/Trigger Value: 65.00%",
+    "estimated_value_per_1000": "was $940.00 per $1,000 principal amount"
+  }
+}

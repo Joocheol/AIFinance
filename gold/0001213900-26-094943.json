@@ -1,0 +1,45 @@
+{
+  "accession_number": "0001213900-26-094943",
+  "product_name": "Uncapped Accelerated Barrier Notes Linked to the Bloomberg Commodity IndexSM due August 29, 2031",
+  "product_family": "leveraged_barrier",
+  "principal_amount_usd": 116000.0,
+  "cusip": "46661K3Q9",
+  "pricing_date": "2026-08-26",
+  "issue_date": "2026-08-31",
+  "maturity_date": "2031-08-29",
+  "underlyings": [
+    {
+      "name": "Bloomberg Commodity Index",
+      "ticker": "BCOM",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "barrier",
+  "barrier_pct": 0.7,
+  "buffer_pct": null,
+  "upside_participation": 2.1,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 943.7,
+  "_evidence": {
+    "principal_amount_usd": "Total $116,000",
+    "cusip": "CUSIP: 46661K3Q9",
+    "pricing_date": "Pricing Date: August 26, 2026",
+    "issue_date": "On or about August 31, 2026",
+    "maturity_date": "Maturity Date*: August 29, 2031",
+    "underlyings": "(Bloomberg ticker: BCOM)",
+    "barrier_pct": "Barrier Amount: 70.00% of the Initial",
+    "upside_participation": "Upside Leverage Factor: 2.10",
+    "estimated_value_per_1000": "was $943.70 per $1,000 principal"
+  }
+}

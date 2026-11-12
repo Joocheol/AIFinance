@@ -1,0 +1,47 @@
+{
+  "accession_number": "0001213900-26-109760",
+  "product_name": "Auto Callable Notes Linked to the J.P. Morgan Multi-Asset Index due October 18, 2033",
+  "product_family": "principal_protected",
+  "principal_amount_usd": 3844000.0,
+  "cusip": "46661PLR6",
+  "pricing_date": "2026-10-13",
+  "issue_date": "2026-10-16",
+  "maturity_date": "2033-10-18",
+  "underlyings": [
+    {
+      "name": "J.P. Morgan Multi-Asset Index",
+      "ticker": "MAX",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "single",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": true,
+  "autocall_frequency": "annual",
+  "autocall_trigger_pct": 1.02,
+  "issuer_callable": false,
+  "downside_type": "principal_protected",
+  "barrier_pct": null,
+  "buffer_pct": null,
+  "upside_participation": 1.0,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 927.8,
+  "_evidence": {
+    "principal_amount_usd": "$3,844,000",
+    "cusip": "CUSIP: 46661PLR6",
+    "pricing_date": "Pricing Date: October 13, 2026",
+    "issue_date": "On or about October 16, 2026",
+    "maturity_date": "Maturity Date*: October 18, 2033",
+    "underlyings": "(Bloomberg ticker: MAX)",
+    "autocall_frequency": "October 18, 2027, October 13, 2028",
+    "autocall_trigger_pct": "first Review Date: 102.00% of the",
+    "downside_type": "repayment of principal in full",
+    "upside_participation": "Participation Rate: 100.00%",
+    "estimated_value_per_1000": "was $927.80 per $1,000 principal"
+  }
+}

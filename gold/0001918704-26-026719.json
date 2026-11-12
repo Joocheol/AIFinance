@@ -1,0 +1,56 @@
+{
+  "accession_number": "0001918704-26-026719",
+  "product_name": "Buffered Digital Notes Linked to the Least Performing of the Nasdaq-100® Technology Sector IndexSM, the Russell 2000® Index and the S&P 500® Index due October 7, 2027",
+  "product_family": "digital",
+  "principal_amount_usd": 274000,
+  "cusip": "46661MPN8",
+  "pricing_date": "2026-09-03",
+  "issue_date": "2026-09-09",
+  "maturity_date": "2027-10-07",
+  "underlyings": [
+    {
+      "name": "Nasdaq-100 Technology Sector Index",
+      "ticker": "NDXT",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "Russell 2000 Index",
+      "ticker": "RTY",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "S&P 500 Index",
+      "ticker": "SPX",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "worst_of",
+  "coupon_rate_pa": null,
+  "coupon_frequency": null,
+  "coupon_barrier_pct": null,
+  "memory_coupon": null,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": false,
+  "downside_type": "buffer",
+  "barrier_pct": null,
+  "buffer_pct": 0.2,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": 0.0975,
+  "estimated_value_per_1000": 988.3,
+  "_evidence": {
+    "principal_amount_usd": "Total | $274,000",
+    "cusip": "CUSIP: 46661MPN8",
+    "pricing_date": "Pricing Date: September 3, 2026",
+    "issue_date": "On or about September 9, 2026",
+    "maturity_date": "Maturity Date*: October 7, 2027",
+    "buffer_pct": "Buffer Amount: 20.00%",
+    "digital_return_pct": "Contingent Digital Return: 9.75%",
+    "estimated_value_per_1000": "was $988.30 per $1,000 principal amount"
+  }
+}

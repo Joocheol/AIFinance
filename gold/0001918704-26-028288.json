@@ -1,0 +1,61 @@
+{
+  "accession_number": "0001918704-26-028288",
+  "product_name": "Callable Contingent Interest Notes Linked to the Least Performing of the Nasdaq-100 Index®, the Russell 2000® Index and the S&P 500® Index due August 22, 2030",
+  "product_family": "issuer_call_contingent_coupon",
+  "principal_amount_usd": 535000.0,
+  "cusip": "46661PUZ8",
+  "pricing_date": "2026-09-18",
+  "issue_date": "2026-09-23",
+  "maturity_date": "2030-08-22",
+  "underlyings": [
+    {
+      "name": "Nasdaq-100 Index®",
+      "ticker": "NDX",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "Russell 2000® Index",
+      "ticker": "RTY",
+      "kind": "index",
+      "weight": null
+    },
+    {
+      "name": "S&P 500® Index",
+      "ticker": "SPX",
+      "kind": "index",
+      "weight": null
+    }
+  ],
+  "basket_type": "worst_of",
+  "coupon_rate_pa": 0.09,
+  "coupon_frequency": "monthly",
+  "coupon_barrier_pct": 0.7,
+  "memory_coupon": false,
+  "autocall": false,
+  "autocall_frequency": null,
+  "autocall_trigger_pct": null,
+  "issuer_callable": true,
+  "downside_type": "barrier",
+  "barrier_pct": 0.5,
+  "buffer_pct": null,
+  "upside_participation": null,
+  "cap_pct": null,
+  "digital_return_pct": null,
+  "estimated_value_per_1000": 972.1,
+  "_evidence": {
+    "principal_amount_usd": "Total | $535,000",
+    "cusip": "CUSIP: 46661PUZ8",
+    "pricing_date": "Pricing Date: September 18, 2026",
+    "issue_date": "On or about September 23, 2026",
+    "maturity_date": "Maturity Date*: August 22, 2030",
+    "underlyings": "(Bloomberg ticker: NDX)",
+    "basket_type": "Least Performing of the Nasdaq-100",
+    "coupon_rate_pa": "Interest Rate: 9.00% per annum",
+    "coupon_frequency": "payable at a rate of 0.75% per month",
+    "coupon_barrier_pct": "70.00% of its Initial Value",
+    "issuer_callable": "may redeem the notes early",
+    "barrier_pct": "each Index, 50.00% of its Initial Value",
+    "estimated_value_per_1000": "was $972.10 per $1,000 principal"
+  }
+}

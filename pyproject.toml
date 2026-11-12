@@ -15,6 +15,7 @@ dependencies = [
     "matplotlib>=3.8",
     "jupyterlab>=4.2",
     "ipykernel>=6.29",
+    "pydantic>=2.7",
 ]
 
 [build-system]

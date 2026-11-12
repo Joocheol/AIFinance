@@ -119,12 +119,21 @@ def build_index(con: duckdb.DuckDBPyConnection, chunks: pd.DataFrame, model: str
 
 
 # ------------------------------------------------------------------ 검색
+CUSIP_IN_QUERY = re.compile(r"\b[0-9]{3}[0-9A-Z]{5}[0-9]\b")
+
+
 def search(con: duckdb.DuckDBPyConnection, query: str, k: int = 8, mode: str = "hybrid",
-           where: str | None = None, include_boilerplate: bool = True) -> pd.DataFrame:
-    """mode: 'vector' | 'keyword' | 'hybrid'.  where: products 뷰 컬럼에 대한 SQL 조건 (예: "p.product_family = 'digital'")."""
+           where: str | None = None, include_boilerplate: bool = True, auto_cusip: bool = True) -> pd.DataFrame:
+    """mode: 'vector' | 'keyword' | 'hybrid'.  where: products 뷰 컬럼에 대한 SQL 조건 (예: "p.product_family = 'digital'").
+
+    auto_cusip: 검색어에 CUSIP 이 있으면 그 상품의 청크로 범위를 좁힌다. 벡터 검색은 CUSIP 같은 식별자를
+    의미로 이해하지 못해 다른 상품의 비슷한 문단을 가져오기 때문이다 (모듈 5 평가에서 발견).
+    """
     model, dim = con.execute("SELECT model, dim FROM rag_meta").fetchall()[0]
     con.execute("LOAD fts")
     filters = []
+    if auto_cusip and (m := CUSIP_IN_QUERY.search(query)):
+        filters.append(f"c.cusip = '{m.group(0)}'")
     if not include_boilerplate:
         filters.append("NOT c.is_boilerplate")
     if where:

@@ -92,6 +92,7 @@ FAMILY_RULES = [
     ("issuer_call_contingent_coupon", r"(?<!Auto )(?<!Auto-)Callable Contingent"),
     ("autocall_contingent_coupon", r"Auto[- ]?Callable|Contingent Income|Contingent Coupon"),
     ("digital", r"Digital"),
+    ("leveraged_barrier", r"Contingent Buffered"),  # 조건부 버퍼 = 사실상 배리어 (모듈 5 답변 평가에서 발견)
     ("leveraged_buffer", r"Buffered"),
     ("leveraged_barrier", r"Accelerated Barrier|Trigger PLUS|Leveraged Upside|Return Enhanced|PLUS"),
 ]
@@ -134,7 +135,8 @@ def normalize_underlying(name: str) -> str:
 
 def extract_underlyings(title: str | None, text: str) -> tuple[list[Underlying], str | None]:
     head = text[:8000]
-    if re.search(r"Least Performing|Lesser Performing|Worst Performing", (title or "") + head[:3000], re.I):
+    # Wells Fargo 형식은 'Lowest Performing' 이라고 쓴다 (모듈 5 답변 평가에서 발견)
+    if re.search(r"(?:Least|Lesser|Lowest|Worst) Performing", (title or "") + head[:3000], re.I):
         basket = "worst_of"
     elif title and re.search(r"Basket", title, re.I):
         basket = "weighted_basket"
@@ -144,7 +146,7 @@ def extract_underlyings(title: str | None, text: str) -> tuple[list[Underlying],
     if title:
         m = re.search(r"(?:Linked to|Based on)\s+(?:the\s+)?(.+?)\s+due\s", title)
         if m:
-            body = re.sub(r"^(?:Least|Lesser|Worst) Perform\w* of\s+(?:the\s+)?", "", m.group(1), flags=re.I)
+            body = re.sub(r"^(?:Least|Lesser|Lowest|Worst) Perform\w* of\s+(?:the\s+)?", "", m.group(1), flags=re.I)
             body = re.sub(CORP_SUFFIX, r" \1", body)  # 'Affirm Holdings, Inc.' 가 쉼표에서 쪼개지지 않게
             names = [normalize_underlying(n) for n in re.split(r",\s*(?:and\s+)?(?:the\s+)?|\s+and\s+(?:the\s+)?", body)]
             names = [n for n in names if n]
@@ -185,6 +187,9 @@ def extract(text: str, accession_number: str) -> TermSheet:
         rf"[Dd]ownside threshold level{SEP}.{{0,120}}?equal to {PCT}",
         rf"Threshold Value{SEP}(?:With respect to each \w+, )?{PCT}",
     ])
+    # 조건부 버퍼: 하락이 버퍼 이내면 원금 보전, 넘으면 하락분 전체 손실 → 경제적으로 (1 - 버퍼) 배리어와 같다
+    if buffer is not None and re.search(r"Contingent Buffer", flat):
+        barrier, buffer = round(1 - buffer, 6), None
     if re.search(r"Principal Protect", title or "", re.I):
         downside = "principal_protected"
     elif buffer is not None:

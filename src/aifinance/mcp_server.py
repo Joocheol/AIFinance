@@ -32,7 +32,10 @@ JP Morgan 구조화 노트(발행: JPMorgan Chase Financial Company LLC) 데이�
 
 도구 선택 원칙:
 - 숫자·속성·집계 질문(쿠폰 평균, 상품군별 건수, 배리어 분포 등) → query_products (SQL). 먼저 describe_database 로 구조를 확인하세요.
-- 조건의 의미·정의·위험·계산 방식 등 설명 질문 → search_filings. 공시가 영어이므로 검색어는 영어로 쓰세요.
+- 조건의 의미·정의·위험·계산 방식 등 설명 질문 → search_filings. 공시가 영어이므로 검색어는 영어로,
+  그리고 사용자의 말을 그대로 옮기지 말고 424B2 공시가 쓰는 용어로 바꿔 쓰세요
+  (예: "은행이 매긴 적정가" → "estimated value of the notes internal pricing models").
+  첫 검색 결과가 질문과 안 맞으면 다른 용어로 한두 번 더 검색하세요.
 - 특정 상품 하나 → get_product(cusip).
 
 답변 원칙:

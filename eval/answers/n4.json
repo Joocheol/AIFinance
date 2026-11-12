@@ -1,0 +1,23 @@
+{
+  "id": "n4",
+  "answer": "상품군별 평균 추정가치(estimated_value_per_1000)를 비교하면 가장 낮은 상품군은 autocall_call_premium으로, 평균 약 $941.52(액면 $1,000당, 571개)입니다. 그다음이 autocall_contingent_coupon($944.9), leveraged_barrier($964.0), issuer_call_contingent_coupon($965.3) 순이고, 가장 높은 것은 digital($977.8)입니다. 오토콜 계열은 만기가 길고 MerQube Vol Advantage 지수(연 6% 일일 차감) 연계 상품이 많아 추정가치가 낮게 나오는 경향이 있습니다. 공시는 판매·구조화·헤지 비용이 발행가에 포함되어 있어 발행가가 추정가치보다 높다고 설명합니다.",
+  "key_values": {
+    "lowest_family": "autocall_call_premium",
+    "avg_estimated_value": 941.5176882661995
+  },
+  "citations": [
+    {
+      "cusip": "46661PPR2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026110212/ea0308881-01_424b2.htm",
+      "quote": "The original issue price of the notes exceeds the estimated value of the notes because costs associated with selling, structuring and hedging the notes are included"
+    }
+  ],
+  "tools_used": [
+    "query_products",
+    "search_filings"
+  ],
+  "sql": [
+    "SELECT product_family, AVG(estimated_value_per_1000) ev, COUNT(estimated_value_per_1000) n, MIN(estimated_value_per_1000), MAX(estimated_value_per_1000) FROM products GROUP BY 1 ORDER BY ev",
+    "SELECT 'v=' || CAST(AVG(estimated_value_per_1000) AS VARCHAR) FROM products WHERE product_family='autocall_call_premium'"
+  ]
+}

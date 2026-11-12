@@ -1,0 +1,35 @@
+{
+  "id": "e3",
+  "answer": "MerQube Vol Advantage 지수(MQUSLVA, MQUSTVA 등)는 지수 수준에서 연 6.0%가 매일 차감되므로, 동일 구성의 차감 없는 포트폴리오보다 항상 뒤처집니다. 공시는 이 차감이 지수 성과에 상당한 부담(drag)이 되어 전략의 플러스 수익을 상쇄하고 마이너스 수익은 키우며, 전략 수익이 횡보하면 지수가 꾸준히 하락할 수 있다고 설명합니다. 즉 전략 수익이 차감분을 넘어설 때만 지수가 오르므로, 쿠폰 배리어·트리거·조기상환 기준 아래로 떨어질 확률이 높아집니다. 대신 차감 덕분에 쿠폰·배리어 등 조건은 차감 없는 지수 연계 상품보다 유리하게 정해지지만, 그 개선이 차감의 부정적 효과를 상쇄한다는 보장은 없습니다. 데이터에서도 이들 지수 연계 상품은 쿠폰이 높고(MQUSLVA 평균 14.72%, MQUSTVA 11.90%) 만기가 약 5년으로 길며, 추정가치가 평균 약 $915~$919로 전체 평균($957.7)보다 낮습니다. MQUSTVA는 여기에 QQQ 펀드의 명목 금융비용(notional financing cost)도 추가로 차감됩니다.",
+  "key_values": {},
+  "citations": [
+    {
+      "cusip": "46661KJL3",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026095062/ea0303865-01_424b2.htm",
+      "quote": "This deduction will place a significant drag on the performance of the Index, potentially offsetting positive returns on the Index’s investment strategy"
+    },
+    {
+      "cusip": "46661KJL3",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026095062/ea0303865-01_424b2.htm",
+      "quote": "The Index will not appreciate unless the return of its investment strategy is sufficient to offset the negative effects of this deduction"
+    },
+    {
+      "cusip": "46661P2K2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426030215/form424b2.htm",
+      "quote": "there can be no assurance that any improvement in the terms of the notes derived from the daily deduction will offset the negative effect of the daily deduction"
+    },
+    {
+      "cusip": "46661KGW2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426024634/form424b2.htm",
+      "quote": "The level of the Index reflects a deduction of 6.0% per annum that accrues daily."
+    }
+  ],
+  "tools_used": [
+    "search_filings",
+    "query_products"
+  ],
+  "sql": [
+    "SELECT underlying_names, COUNT(*) n, ROUND(AVG(coupon_rate_pa),4) c, ROUND(AVG(estimated_value_per_1000),1) ev, ROUND(AVG(tenor_years),2) ten FROM products WHERE underlying_names IN ('MQUSLVA','MQUSTVA','MQUSGVA') GROUP BY 1 ORDER BY n DESC",
+    "SELECT COUNT(estimated_value_per_1000) n, ROUND(AVG(estimated_value_per_1000),1) avg_ev FROM products"
+  ]
+}

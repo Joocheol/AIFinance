@@ -1,0 +1,22 @@
+{
+  "id": "n2",
+  "answer": "오토콜 조건부 쿠폰(autocall_contingent_coupon) 상품 914개 중 연 쿠폰율(coupon_rate_pa)이 추출된 754개의 단순 평균은 약 13.05%(0.1305)입니다. 중앙값은 12.15%, 최저 6.5%, 최고 30.15%로 분포 폭이 넓습니다. 나머지 160개는 쿠폰율이 비어 있어 평균에서 제외되었습니다(AVG는 NULL 무시). 예를 들어 CUSIP 46661KGW2(MerQube US Large-Cap Vol Advantage Index 연계)의 확정 쿠폰은 연 12.50%로 평균 근처입니다.",
+  "key_values": {
+    "avg_coupon_pa": 0.13045384615384614
+  },
+  "citations": [
+    {
+      "cusip": "46661KGW2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426024634/form424b2.htm",
+      "quote": "Contingent Interest Rate: 12.50% per annum, payable at a rate of 1.04167% per month"
+    }
+  ],
+  "tools_used": [
+    "query_products",
+    "search_filings"
+  ],
+  "sql": [
+    "SELECT AVG(coupon_rate_pa) avg_c, COUNT(*) n, COUNT(coupon_rate_pa) nn, MIN(coupon_rate_pa), MAX(coupon_rate_pa), MEDIAN(coupon_rate_pa) FROM products WHERE product_family='autocall_contingent_coupon'",
+    "SELECT 'v=' || CAST(AVG(coupon_rate_pa) AS VARCHAR) a FROM products WHERE product_family='autocall_contingent_coupon'"
+  ]
+}

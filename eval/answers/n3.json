@@ -1,0 +1,31 @@
+{
+  "id": "n3",
+  "answer": "재구축된 DB 기준으로 오토콜 조건부 쿠폰 상품 중 기초자산 3개 워스트오브(basket_type='worst_of', n_underlyings=3, 쿠폰 있는 170개)의 평균 연 쿠폰은 약 10.87%, 단일 기초자산(basket_type='single', n_underlyings=1, 쿠폰 있는 530개)은 약 13.76%로, 차이(워스트오브 − 단일)는 약 −2.90%p입니다. 이 차이는 두 그룹의 기초자산 구성이 달라서 생깁니다. 단일 그룹은 지수 연계 334개(평균 13.38%)와 개별 주식 194개(14.45%)로 이뤄져 있고, 그 지수 연계 334개 중 333개가 연 6.0% 일일 차감이 있는 MerQube Vol Advantage 지수(MQUSLVA·MQUSTVA·MQUSGVA)입니다. 반면 3개 워스트오브는 NDX/RTY/SPX 같은 일반 주가지수 조합이 중심이며(지수만으로 구성된 106개 평균 8.89%, 예: NDX/RTY/SPX 54개 9.07%), 주식은 30개(18.25%)로 비중이 작습니다. 자산 유형별로 직접 비교해 보면 결과가 하나로 정리되지 않습니다. 주식은 워스트오브(18.25%, 30개)가 단일(14.45%, 194개)보다 높습니다. 지수는 워스트오브 8.89% vs 단일 13.38%이지만, 단일 쪽이 사실상 전부 MerQube 지수라 같은 조건의 비교가 아닙니다. ETF는 워스트오브 10.25%(6개) vs 단일 10.95%(2개, 비트코인·반도체 ETF)로 워스트오브가 오히려 약간 낮지만 표본이 너무 작습니다. 따라서 '워스트오브는 항상 쿠폰이 더 높다'고 일반화할 수는 없고, 데이터로 확인되는 것은 주식에서만 워스트오브 쿠폰이 더 높다는 점과, 전체 평균 차이는 기초자산 구성(MerQube 지수·개별 주식 비중) 차이가 주도한다는 점입니다.",
+  "key_values": {
+    "coupon_diff_pa": -0.028967502774694717
+  },
+  "citations": [
+    {
+      "cusip": "46661KGW2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426024634/form424b2.htm",
+      "quote": "The level of the Index reflects a deduction of 6.0% per annum that accrues daily."
+    },
+    {
+      "cusip": "46661PEU7",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426031006/form424b2.htm",
+      "quote": "Payments on the notes are not linked to a basket composed of the Underlyings and are contingent upon the performance of each individual Underlying."
+    }
+  ],
+  "tools_used": [
+    "query_products",
+    "search_filings"
+  ],
+  "sql": [
+    "SELECT n_underlyings, basket_type, COUNT(*) n, COUNT(coupon_rate_pa) nc, AVG(coupon_rate_pa) c FROM products WHERE product_family='autocall_contingent_coupon' GROUP BY 1,2 ORDER BY 1,2",
+    "SELECT 'v=' || CAST(AVG(coupon_rate_pa) FILTER (WHERE basket_type='worst_of' AND n_underlyings=3) AS VARCHAR) wo3, 'v=' || CAST(AVG(coupon_rate_pa) FILTER (WHERE basket_type='single' AND n_underlyings=1) AS VARCHAR) s1, 'v=' || CAST(AVG(coupon_rate_pa) FILTER (WHERE basket_type='worst_of' AND n_underlyings=3) - AVG(coupon_rate_pa) FILTER (WHERE basket_type='single' AND n_underlyings=1) AS VARCHAR) d FROM products WHERE product_family='autocall_contingent_coupon'",
+    "SELECT CASE WHEN basket_type='worst_of' AND n_underlyings=3 THEN 'wo3' ELSE 'single' END grp, underlying_kinds, COUNT(*) n, COUNT(coupon_rate_pa) nc, ROUND(AVG(coupon_rate_pa),4) c, ROUND(AVG(barrier_pct),4) bar, ROUND(AVG(coupon_barrier_pct),4) cb, ROUND(AVG(tenor_years),2) ten FROM products WHERE product_family='autocall_contingent_coupon' AND ((basket_type='worst_of' AND n_underlyings=3) OR (basket_type='single' AND n_underlyings=1)) GROUP BY 1,2 ORDER BY 1, n DESC",
+    "SELECT CASE WHEN underlying_names IN ('MQUSLVA','MQUSTVA','MQUSGVA') OR underlying_names LIKE '%Vol Advantage%' THEN 'merqube' ELSE 'other_index' END sub, COUNT(*) n, COUNT(coupon_rate_pa) nc, ROUND(AVG(coupon_rate_pa),4) c, ROUND(AVG(tenor_years),2) ten FROM products WHERE product_family='autocall_contingent_coupon' AND basket_type='single' AND n_underlyings=1 AND underlying_kinds='index' GROUP BY 1",
+    "SELECT underlying_names, COUNT(*) n, COUNT(coupon_rate_pa) nc, ROUND(AVG(coupon_rate_pa),4) c FROM products WHERE product_family='autocall_contingent_coupon' AND basket_type='worst_of' AND n_underlyings=3 GROUP BY 1 ORDER BY n DESC LIMIT 8",
+    "SELECT cusip, basket_type, n_underlyings, underlying_names, coupon_rate_pa, tenor_years, barrier_pct FROM products WHERE product_family='autocall_contingent_coupon' AND underlying_kinds='etf' AND ((basket_type='worst_of' AND n_underlyings=3) OR (basket_type='single' AND n_underlyings=1)) ORDER BY basket_type"
+  ]
+}

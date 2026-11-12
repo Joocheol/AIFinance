@@ -18,7 +18,7 @@
 | 2 | [AI 정보 추출](notebooks/02_AI_정보추출.ipynb) | 스키마 정의, Claude로 정답셋 라벨링·검수, 규칙 기반 추출기 채점·오류 분석 | ✅ |
 | 3 | [상품 DB 구축](notebooks/03_상품_DB_구축.ipynb) | CUSIP으로 공시 이력 연결, DuckDB 스키마, 품질 점검 규칙, 전체 기간 파이프라인 | ✅ |
 | 4 | [벡터화·RAG·MCP](notebooks/04_벡터화_RAG_MCP.ipynb) | 공통 문구 분리 청킹, 로컬 임베딩, DuckDB 하이브리드 검색, RAG vs SQL, MCP 서버로 Claude Desktop 연결 | ✅ |
-| 5 | RAG 평가 | 정답셋 구축, 검색·답변 정확도 측정 | 예정 |
+| 5 | [RAG 평가](notebooks/05_RAG_평가.ipynb) | 내용 기반 검색 평가셋, 라벨 누출과 쉬운 말 질문, Claude 검색어 재작성, 답변의 숫자·인용·루브릭 채점 | ✅ |
 | 6 | JPM 상품군 분석 | 상품 유형·기초자산·쿠폰·배리어 분포, 추정가치로 본 발행 마진, 시계열 추세 | 예정 |
 | 7 | 신상품 설계 | 공백 분석, 아이디어 도출, 몬테카를로 프라이싱·백테스트, 텀시트 초안 | 예정 |
 | 8 | 캡스톤 | 신상품 제안서 작성과 발표 | 예정 |
@@ -53,9 +53,10 @@ SEC는 자동화 요청에 연락처가 담긴 User-Agent와 초당 10건 이하
 ```
 notebooks/          강의 노트북 (모듈별)
 src/aifinance/      공용 코드 (EDGAR 클라이언트, 스키마, 추출기, 채점, 차트)
-prompts/            Claude Desktop용 프롬프트 (정답셋 라벨링 지침 등)
+prompts/            Claude Desktop용 프롬프트 (라벨링·답변 생성·채점 지침)
 .mcp.json           Code 탭에서 이 폴더를 열면 쓸 수 있는 MCP 서버 설정
-gold/               Claude가 만들고 검수한 정답셋 (27건, dev/test 분할)
+gold/               Claude가 만들고 검수한 추출 정답셋 (27건, dev/test 분할)
+eval/               RAG 평가셋, 예시 답변(answers/)과 채점 결과(judgments/)
 data/               수집 데이터 (git 제외)
   raw/              공시 원문 HTML
   interim/          목록·평문 parquet

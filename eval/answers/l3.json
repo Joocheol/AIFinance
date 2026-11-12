@@ -1,0 +1,36 @@
+{
+  "id": "l3",
+  "answer": "CUSIP 46661QJW6는 Alphabet 클래스 A 주식과 Meta Platforms 클래스 A 주식 중 성과가 낮은 쪽에 연계된 Contingent Buffered Return Enhanced Notes(2029년 11월 2일 만기)입니다. 공시는 하방 보호를 'Contingent Buffer Amount 10.00%'라고 부르지만, 정의상 일반 버퍼가 아니라 배리어 구조입니다. 성과가 낮은 주식이 행사가 대비 10% 이내로 하락하면 원금을 돌려받지만, 10%를 넘게 하락하면 초과분이 아니라 행사가 대비 전체 하락률만큼 1:1로 손실이 납니다(예시 4: −60%면 $400 지급). 즉 행사가의 90% 수준이 배리어(barrier_pct 0.90 = 1 − 10%)이고, 이 아래로 떨어지면 보호가 완전히 사라집니다. 상승 참여율(Upside Leverage Factor)은 2.4986배로, 두 주식이 모두 행사가보다 높으면 낮은 쪽 수익률 × 2.4986을 받습니다. 재구축된 DB도 downside_type='barrier', barrier_pct=0.9, upside_participation=2.4986, product_family='leveraged_barrier'로 기록하고 있습니다(검색 색인 머리글은 아직 이전 분류인 leveraged_buffer로 표시됨).",
+  "key_values": {
+    "downside_type": "barrier",
+    "barrier_pct": 0.9,
+    "upside_participation": 2.4986
+  },
+  "citations": [
+    {
+      "cusip": "46661QJW6",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026116213/ea0310921-01_424b2.htm",
+      "quote": "is less than its Stock Strike Price by up to the Contingent Buffer Amount, you will receive the principal amount of your notes at maturity."
+    },
+    {
+      "cusip": "46661QJW6",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026116213/ea0310921-01_424b2.htm",
+      "quote": "you will lose 1% of the principal amount of your notes for every 1% that the Final Stock Price of the Lesser Performing Reference Stock is less than its Stock Strike Price."
+    },
+    {
+      "cusip": "46661QJW6",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026116213/ea0310921-01_424b2.htm",
+      "quote": "Because the Final Stock Price of $40.00 is less than the Stock Strike Price of $100.00 by more than the Contingent Buffer Amount of 10.00% and the Stock Return is -60.00%"
+    },
+    {
+      "cusip": "46661QJW6",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026116213/ea0310921-01_424b2.htm",
+      "quote": "reflects the Upside Leverage Factor of 2.4986 and the Contingent Buffer Amount of 10.00%."
+    }
+  ],
+  "tools_used": [
+    "get_product",
+    "search_filings"
+  ],
+  "sql": []
+}

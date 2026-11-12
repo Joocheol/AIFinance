@@ -1,0 +1,37 @@
+{
+  "id": "l1",
+  "answer": "CUSIP 46661KGW2는 MerQube US Large-Cap Vol Advantage Index(MQUSLVA) 연계 Auto Callable Contingent Interest Notes(2029년 8월 24일 만기, 월지급·메모리 쿠폰)입니다. 확정 연 쿠폰율은 12.50%(월 1.04167%), 조기상환 기준(Call Value)은 최초가의 90%, 만기 배리어(Interest Barrier/Trigger Value)는 최초가의 65%입니다. 다만 자동 조기상환은 1~11번째 관찰일에는 적용되지 않고 12번째 관찰일부터 가능합니다. 판매 중 조건 변경: DB 기록상 예비본이 2건(2026-08-07, 2026-08-11) 있었고, 첫 예비본의 쿠폰율은 연 14.0%였으나 두 번째 예비본에서 12.5%로 낮아져 확정본도 12.5%로 정해졌습니다(품질 점검 Q12: 0.14 → 0.125 → 확정 0.125). 예비본 공시 원문 문구는 검색 색인에 없어 확인하지 못함. 추정가치는 $945.20(예비본 기준 $950.0)입니다.",
+  "key_values": {
+    "coupon_rate_pa": 0.125,
+    "autocall_trigger_pct": 0.9,
+    "barrier_pct": 0.65,
+    "first_prelim_coupon_rate_pa": 0.14
+  },
+  "citations": [
+    {
+      "cusip": "46661KGW2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426024634/form424b2.htm",
+      "quote": "Contingent Interest Rate: 12.50% per annum, payable at a rate of 1.04167% per month"
+    },
+    {
+      "cusip": "46661KGW2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426024634/form424b2.htm",
+      "quote": "Interest Barrier/Trigger Value: 65.00% of the Initial Value, which is 2,801.63"
+    },
+    {
+      "cusip": "46661KGW2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426024634/form424b2.htm",
+      "quote": "Call Value: 90.00% of the Initial Value"
+    },
+    {
+      "cusip": "46661KGW2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426024634/form424b2.htm",
+      "quote": "If the closing level of the Index on any Review Date (other than the first through eleventh and final Review Dates) is greater than or equal to the Call Value"
+    }
+  ],
+  "tools_used": [
+    "get_product",
+    "search_filings"
+  ],
+  "sql": []
+}

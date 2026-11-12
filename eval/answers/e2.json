@@ -1,0 +1,34 @@
+{
+  "id": "e2",
+  "answer": "워스트오브(least/lesser performing) 구조는 바스켓 평균이 아니라 각 기초자산의 개별 성과에 따라 지급이 결정되므로, 투자자는 모든 기초자산 각각의 하락 위험에 노출됩니다. 한 기초자산의 부진은 다른 기초자산의 상승으로 상쇄되지 않으며, 그 결과 조기상환이 안 되거나 쿠폰을 못 받거나 만기 손실이 날 수 있습니다. 기초자산 간 상관관계가 낮을수록 그중 하나가 배리어 아래로 떨어질 가능성이 커져, 단일 기초자산 상품보다 큰 손실 위험이 높습니다. 만기에 가장 부진한 기초자산이 배리어 아래이면 배리어 보호가 사라지고 그 기초자산의 하락률을 그대로 떠안게 됩니다. 이런 추가 위험 때문에 같은 자산 유형끼리 보면 워스트오브의 쿠폰이 더 높게 책정됩니다(예: 주식 3개 워스트오브 오토콜 평균 18.78% vs 단일 주식 14.45%, query_products 기준).",
+  "key_values": {},
+  "citations": [
+    {
+      "cusip": "46661PEU7",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426031006/form424b2.htm",
+      "quote": "Payments on the notes are not linked to a basket composed of the Underlyings and are contingent upon the performance of each individual Underlying."
+    },
+    {
+      "cusip": "46661PEU7",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426031006/form424b2.htm",
+      "quote": "If the Final Value of any Underlying is less than its Barrier Amount and the notes have not been automatically called, the benefit provided by the Barrier Amount will terminate"
+    },
+    {
+      "cusip": "46661PH75",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026107226/ea0307854-01_424b2.htm",
+      "quote": "The performance of the underlying stocks may not be correlated."
+    },
+    {
+      "cusip": null,
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026110046/ea0308776-01_424b2.htm",
+      "quote": "With two Underlyings, it is more likely that the closing level of either Underlying will be less than its Downside Threshold on the Final Valuation Date."
+    }
+  ],
+  "tools_used": [
+    "search_filings",
+    "query_products"
+  ],
+  "sql": [
+    "SELECT CASE WHEN basket_type='worst_of' AND n_underlyings=3 THEN 'wo3' WHEN basket_type='single' AND n_underlyings=1 THEN 'single' END grp, underlying_kinds, COUNT(*) n, COUNT(coupon_rate_pa) nc, ROUND(AVG(coupon_rate_pa),4) c FROM products WHERE product_family='autocall_contingent_coupon' AND ((basket_type='worst_of' AND n_underlyings=3) OR (basket_type='single' AND n_underlyings=1)) GROUP BY 1,2 ORDER BY 1, n DESC"
+  ]
+}

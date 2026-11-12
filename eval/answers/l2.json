@@ -1,0 +1,30 @@
+{
+  "id": "l2",
+  "answer": "CUSIP 46661PK89는 Palantir Technologies Inc. 클래스 A 보통주(PLTR) 단일 종목에 연계된 Auto Callable Contingent Interest Notes(2028년 4월 13일 만기, 분기 관찰)입니다. 연 쿠폰율은 16.30%(분기 $40.75)이고, 쿠폰 배리어와 만기 트리거는 최초가의 50%, 조기상환 기준은 최초가의 100%입니다. 가격 결정 시점의 추정가치는 액면 $1,000당 $971.70입니다(예비본 기준 $969.9). 예비본과 확정본의 쿠폰율은 모두 16.3%로 판매 중 변경은 없었습니다.",
+  "key_values": {
+    "coupon_rate_pa": 0.163,
+    "estimated_value_per_1000": 971.7
+  },
+  "citations": [
+    {
+      "cusip": "46661PK89",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026109102/ea0308514-01_424b2.htm",
+      "quote": "Reference Stock: The Class A common stock of Palantir Technologies Inc., par value $0.001 per share (Bloomberg ticker: PLTR)."
+    },
+    {
+      "cusip": "46661PK89",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026109102/ea0308514-01_424b2.htm",
+      "quote": "a Contingent Interest Rate of 16.30% per annum"
+    },
+    {
+      "cusip": "46661PK89",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000121390026109102/ea0308514-01_424b2.htm",
+      "quote": "The estimated value of the notes, when the terms of the notes were set, was $971.70 per $1,000 principal amount note."
+    }
+  ],
+  "tools_used": [
+    "get_product",
+    "search_filings"
+  ],
+  "sql": []
+}

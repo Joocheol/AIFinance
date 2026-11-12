@@ -1,0 +1,39 @@
+{
+  "id": "e4",
+  "answer": "발행사 재량 조기상환(issuer callable) 조건부 쿠폰 상품은 발행사가 원할 때 상환할 수 있으므로, 만기가 상품에 따라 약 3개월~1년 수준까지 짧아질 수 있고 상환 이후에는 쿠폰을 더 받지 못합니다. 발행사는 통상 자신에게 유리할 때(쿠폰이 시장 대비 비쌀 때) 상환하므로, 투자자는 비슷한 위험 수준에서 같은 수익률로 재투자하지 못하는 재투자 위험을 집니다. 조기상환되더라도 발행 시 판매 수수료 등을 돌려받지 못합니다. 쿠폰 자체도 보장되지 않아, 관찰일에 기초자산(워스트오브면 어느 하나라도)이 쿠폰 배리어 아래이면 그 회차 쿠폰은 지급되지 않으며 기초자산 상승에는 참여하지 못합니다. 상환되지 않은 채 만기에 트리거 아래이면 원금 손실이 나고, 만기 전 매도 시 유통시장 가격이 발행가보다 낮아 큰 손실이 날 수 있습니다. 데이터상 이 상품군(240개)은 평균 연 쿠폰 10.70%, 평균 만기 2.83년, 평균 추정가치 $965.3입니다.",
+  "key_values": {},
+  "citations": [
+    {
+      "cusip": "46661QQH1",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426033065/form424b2.htm",
+      "quote": "If we elect to redeem your notes early, the term of the notes may be reduced to as short as approximately one year"
+    },
+    {
+      "cusip": "46661QQH1",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426033065/form424b2.htm",
+      "quote": "There is no guarantee that you would be able to reinvest the proceeds from an investment in the notes at a comparable return and/or with a comparable interest rate for a similar level of risk."
+    },
+    {
+      "cusip": "46661QQH1",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426033065/form424b2.htm",
+      "quote": "Even in cases where we elect to redeem your notes before maturity, you are not entitled to any fees and commissions described on the front cover of this pricing supplement."
+    },
+    {
+      "cusip": "46661MUN2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426028323/form424b2.htm",
+      "quote": "If the closing level of either Index on that Review Date is less than its Interest Barrier, no Contingent Interest Payment will be made with respect to that Review Date."
+    },
+    {
+      "cusip": "46661QWJ0",
+      "url": "https://www.sec.gov/Archives/edgar/data/1665650/000191870426034476/form424b2.htm",
+      "quote": "Any sale by you prior to the Maturity Date could result in a substantial loss to you."
+    }
+  ],
+  "tools_used": [
+    "search_filings",
+    "query_products"
+  ],
+  "sql": [
+    "SELECT product_family, COUNT(*) n, ROUND(AVG(coupon_rate_pa),4) c, ROUND(AVG(tenor_years),2) ten, ROUND(AVG(estimated_value_per_1000),1) ev FROM products WHERE product_family IN ('issuer_call_contingent_coupon','autocall_contingent_coupon') GROUP BY 1"
+  ]
+}

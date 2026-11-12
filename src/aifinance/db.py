@@ -33,7 +33,8 @@ CREATE OR REPLACE TABLE documents (
     form             VARCHAR,        -- 424B2 / FWP
     doc_status       VARCHAR,        -- final / preliminary / fwp
     filing_date      DATE,
-    url              VARCHAR
+    url              VARCHAR,
+    channel          VARCHAR         -- 판매 채널 (공시 문구로 판별, 모듈 6)
 );
 CREATE OR REPLACE TABLE document_cusips (
     accession_number VARCHAR,
@@ -81,7 +82,7 @@ PRODUCTS_VIEW_SQL = """
 CREATE OR REPLACE VIEW products AS
 WITH finals AS (
     -- 같은 CUSIP의 확정본이 여러 건이면 가장 늦게 제출된 것을 쓴다 (품질 점검 Q09에서 따로 보고)
-    SELECT t.*, d.filing_date AS final_filing_date,
+    SELECT t.*, d.filing_date AS final_filing_date, d.channel,
            row_number() OVER (PARTITION BY t.cusip ORDER BY d.filing_date DESC) AS rn
     FROM terms t JOIN documents d USING (accession_number)
     WHERE t.doc_status = 'final' AND t.cusip IS NOT NULL
@@ -153,6 +154,23 @@ def find_lineage(client, cusips: list[str], forms: str = "424B2,FWP") -> pd.Data
 
 
 # ------------------------------------------------------------------ 문서 → 행
+CHANNEL_RULES = [  # 공시의 판매(Plan of Distribution) 문구로 판매 채널을 판별. 위에서부터 먼저 맞는 것
+    ("UBS", r"UBS Financial Services"),
+    ("Wells Fargo", r"Wells Fargo Securities|\bWFS\b"),
+    ("Morgan Stanley", r"Morgan Stanley Wealth Management|Morgan Stanley Smith Barney"),
+    ("Goldman Sachs", r"Goldman Sachs & Co\. LLC, who is acting as a dealer"),
+]
+
+
+def channel(text: str | None) -> str | None:
+    if not isinstance(text, str):
+        return None
+    for name, pattern in CHANNEL_RULES:
+        if re.search(pattern, text):
+            return name
+    return "JPMS"  # J.P. Morgan Securities 가 직접 또는 이름 없는 딜러를 통해 판매
+
+
 def doc_status(form: str, text: str | None) -> str:
     if form == "FWP":
         return "fwp"
@@ -189,8 +207,10 @@ def build_rows(docs: pd.DataFrame) -> dict[str, pd.DataFrame]:
             codes = [r.cusip]
         links += [{"accession_number": r.accessionNumber, "cusip": c} for c in codes]
 
+    docs["channel"] = [channel(t) if f == "424B2" else None
+                       for f, t in zip(docs.form, docs.text if "text" in docs else [None] * len(docs))]
     documents = docs.rename(columns={"accessionNumber": "accession_number", "filingDate": "filing_date"})[
-        ["accession_number", "form", "doc_status", "filing_date", "url"]
+        ["accession_number", "form", "doc_status", "filing_date", "url", "channel"]
     ]
     return {
         "documents": documents.drop_duplicates("accession_number"),

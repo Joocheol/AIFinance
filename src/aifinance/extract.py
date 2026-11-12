@@ -72,29 +72,36 @@ def _date_list(text: str, label: str) -> list[date]:
 
 # ---------------------------------------------------------------- 상품명·분류
 def extract_title(text: str) -> str | None:
+    """표지의 상품명. 판매사 플랫폼별 형식을 모두 다룬다.
+
+    JPM : 'Structured Investments $775,000 Auto Callable … Notes Linked to … due November 12, 2032'
+    WF  : '$1,746,000 Market Linked Securities — Auto-Callable … Linked to … due August 22, 2028'
+    UBS : 'Trigger GEARS $5,667,750 Linked to the EURO STOXX 50® Index due September 30, 2036'
+    GS  : 'Medium-Term Notes, Series A $72,680,000 Digital Equity Notes due 2029 (Linked to a Basket)'
+    """
     head = re.sub(r"\s+", " ", text[:6000])
-    m = re.search(rf"((?:Notes|Securities|PLUS)\b.{{0,400}}?\bdue\s+{DATE})", head)
+    m = re.search(rf"((?:Notes|Securities|PLUS|GEARS)\b.{{0,400}}?\bdue\s+(?:{DATE}|\d{{4}})(?:\s*\((?:Linked|Based) [^)]{{0,200}}\))?)", head)
     if not m:
         return None
-    # 상품명 시작점: 'due' 앞의 문장에서 머리 부분(발행사명·금액·프로그램명)을 잘라낸다
+    # 상품명 시작점: 'due' 앞의 문장에서 머리 부분(발행사명·프로그램명)을 잘라내고 금액은 지운다
     start = head.rfind("Structured Investments", 0, m.start())
     window = head[max(start, m.start() - 250) : m.end()]
-    for cut in [r"Structured Investments", r"\$\s?[\d,]{5,}", r"Series A", r"LLC", r"Pricing Supplement"]:
-        parts = re.split(cut, window)
-        window = parts[-1]
-    return window.strip(" |—–-")
+    window = re.sub(r"\$\s?[\d,]{5,}(?:\.\d+)?\s*", "", window)
+    for cut in [r"Structured Investments", r"Series A", r"LLC", r"Pricing Supplement", r"Dated \w+ \d{1,2}, \d{4}"]:
+        window = re.split(cut, window)[-1]
+    return window.strip(" |—–-") or None
 
 
 FAMILY_RULES = [
     ("dual_directional", r"Dual Directional"),
-    ("principal_protected", r"Principal Protect|Principal Protection"),
+    ("principal_protected", r"Principal Protect|Principal Protection|Fixed Rate Notes|Range Accrual|Fixed Coupon Notes"),
     ("autocall_call_premium", r"Review Notes|Auto Callable (?:Accelerated|Buffered|Barrier)|Autocallable Leveraged|Auto-Callable (?:Leveraged|Securities with Fixed)"),
     ("issuer_call_contingent_coupon", r"(?<!Auto )(?<!Auto-)Callable Contingent"),
     ("autocall_contingent_coupon", r"Auto[- ]?Callable|Contingent Income|Contingent Coupon"),
-    ("digital", r"Digital"),
+    ("digital", r"Digital|Trigger Step|Step Securities"),
     ("leveraged_barrier", r"Contingent Buffered"),  # 조건부 버퍼 = 사실상 배리어 (모듈 5 답변 평가에서 발견)
     ("leveraged_buffer", r"Buffered"),
-    ("leveraged_barrier", r"Accelerated Barrier|Trigger PLUS|Leveraged Upside|Return Enhanced|PLUS"),
+    ("leveraged_barrier", r"Accelerated Barrier|Trigger PLUS|Leveraged Upside|Return Enhanced|PLUS|GEARS"),
 ]
 
 
@@ -144,7 +151,8 @@ def extract_underlyings(title: str | None, text: str) -> tuple[list[Underlying],
         basket = "single"
     names: list[str] = []
     if title:
-        m = re.search(r"(?:Linked to|Based on)\s+(?:the\s+)?(.+?)\s+due\s", title)
+        m = (re.search(r"(?:Linked to|Based on)\s+(?:the\s+)?(.+?)\s+due\s", title)
+             or re.search(r"\((?:Linked to|Based on)\s+(?:the\s+)?(.+?)\)", title))  # GS 형식: '… due 2029 (Linked to …)'
         if m:
             body = re.sub(r"^(?:Least|Lesser|Lowest|Worst) Perform\w* of\s+(?:the\s+)?", "", m.group(1), flags=re.I)
             body = re.sub(CORP_SUFFIX, r" \1", body)  # 'Affirm Holdings, Inc.' 가 쉼표에서 쪼개지지 않게
@@ -211,7 +219,11 @@ def extract(text: str, accession_number: str) -> TermSheet:
             r"Structured Investments\s*\|?\s*\$\s?([\d,]{5,})",
             r"^.{0,1500}?\$\s?([\d,]{6,})(?:\s|$)",
         ], flags=re.I | re.S)),
-        cusip=_first(flat, [r"CUSIP(?:/ISIN| no\.| No\.| number)?\s*:?\s*\|?\s*([0-9A-Z]{9})\b"]),
+        cusip=_first(flat, [
+            r"CUSIP(?:\s*/\s*ISIN| no\.| No\.| number)?\s*:?\s*\|?\s*([0-9A-Z]{9})\b",
+            # UBS 형식은 CUSIP 을 표의 다른 행에 둔다 → JPM 발행사 CUSIP 접두어로 문서에서 찾는다
+            r"\b((?:4666[01]|4813[0-9])[0-9A-Z]{4})\b",
+        ]),
         pricing_date=_date(_first(flat, [rf"(?:Pricing|Trade|Strike) [Dd]ate{SEP}({DATE})"])),
         issue_date=_date(_first(flat, [
             rf"Original Issue Date(?: \(Settlement Date\))?{SEP}(?:On or about )?({DATE})",
@@ -245,15 +257,16 @@ def extract(text: str, accession_number: str) -> TermSheet:
 
 
 def estimated_value(text: str) -> float | None:
-    """JPM 추정가치를 액면 $1,000 기준으로. UBS 형식처럼 액면이 $10 이면 100배로 환산."""
-    m = re.search(r"estimated value of the (?:notes|securities)[^$]{0,200}?\$\s?([\d,]+\.\d+)(?:\s+per\s+\$\s?([\d,]+))?",
-                  text, re.I | re.S)
+    """JPM 추정가치를 액면 $1,000 기준으로.
+
+    액면은 문구('$10.00 per security')로 찾으면 수수료 문구와 헷갈린다(모듈 6에서 발견).
+    추정가치는 항상 액면의 80~110% 근처이므로 값 자체로 액면($10/$25/$100/$1,000)을 정한다.
+    """
+    m = re.search(r"estimated value of the (?:notes|securities)[^$]{0,200}?\$\s?([\d,]+\.\d+)", text, re.I | re.S)
     if not m:
         return None
     value = _num(m.group(1))
-    if m.group(2):  # "... $9.901 per $10"
-        denomination = _num(m.group(2))
-    else:  # "... per unit" → "$10 principal amount per unit" 같은 액면 표기를 찾는다
-        d = re.search(r"\$\s?(10|25|100|1,000) (?:stated )?principal amount per (?:unit|security|note)", text, re.I)
-        denomination = _num(d.group(1)) if d else 1000.0
-    return round(value * 1000 / denomination, 4)
+    for denomination in (1000.0, 100.0, 25.0, 10.0):
+        if 0.8 <= value / denomination <= 1.1:
+            return round(value * 1000 / denomination, 4)
+    return None  # 어느 액면과도 맞지 않으면 추출 오류로 보고 비운다

@@ -1,9 +1,9 @@
 {
   "id": "n1",
-  "answer": "products 테이블(CUSIP 1개 = 1행, 총 2,971개)을 product_family 별로 집계하면, 가장 많이 발행된 상품군은 오토콜 조건부 쿠폰(autocall_contingent_coupon)으로 914개입니다. 그다음은 autocall_call_premium(571개), dual_directional(287개), other(264개), digital(243개) 순이며, leveraged_buffer와 issuer_call_contingent_coupon이 각 240개, leveraged_barrier가 212개입니다. 즉 전체의 약 31%가 오토콜 조건부 쿠폰 구조입니다. 상품군 분류는 추출기가 부여한 값이므로 일부 분류 오류가 있을 수 있습니다.",
+  "answer": "재구축된 products 테이블(CUSIP 1개 = 1행, 총 3,146개)을 product_family 별로 집계하면, 가장 많이 발행된 상품군은 오토콜 조건부 쿠폰(autocall_contingent_coupon)으로 938개입니다. 그다음은 autocall_call_premium(571개), digital(296개), dual_directional(295개), issuer_call_contingent_coupon(282개), leveraged_buffer(273개), leveraged_barrier(222개), other(206개), principal_protected(63개) 순입니다. 전체의 약 30%가 오토콜 조건부 쿠폰 구조입니다. 상품군 분류는 추출기가 부여한 값이므로 일부 분류 오류가 있을 수 있습니다.",
   "key_values": {
     "top_family": "autocall_contingent_coupon",
-    "count": 914
+    "count": 938
   },
   "citations": [],
   "tools_used": [
@@ -11,6 +11,7 @@
     "query_products"
   ],
   "sql": [
-    "SELECT product_family, COUNT(*) AS n FROM products GROUP BY 1 ORDER BY n DESC"
+    "SELECT product_family, COUNT(*) AS n FROM products GROUP BY 1 ORDER BY n DESC",
+    "SELECT COUNT(*) total FROM products"
   ]
 }

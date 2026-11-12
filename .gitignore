@@ -1,0 +1,14 @@
+# 비밀 정보
+.env
+
+# 수집 데이터와 산출물 (용량이 크므로 git에 올리지 않음)
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store

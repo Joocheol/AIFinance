@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "JPM 424B2 수업용 MCP 서버를 Azure Container Apps(소비량 요금제)에 배포합니다. 공개 SEC 공시 데이터, 읽기 전용."
+  },
+  "parameters": {
+    "appName": {
+      "type": "string",
+      "defaultValue": "[concat('jpm-mcp-', take(uniqueString(resourceGroup().id), 6))]",
+      "maxLength": 32,
+      "metadata": { "description": "서버 이름 (소문자·숫자·하이픈). 주소에 들어갑니다." }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": { "description": "지역. 리소스 그룹 지역을 그대로 씁니다 (권장: Korea Central)." }
+    },
+    "image": {
+      "type": "string",
+      "defaultValue": "ghcr.io/joocheol/jpm-424b2-mcp:latest",
+      "metadata": { "description": "컨테이너 이미지. 바꾸지 마세요." }
+    },
+    "minReplicas": {
+      "type": "int",
+      "defaultValue": 0,
+      "allowedValues": [ 0, 1 ],
+      "metadata": { "description": "0 = 쓰지 않을 때 꺼짐(비용 거의 없음, 첫 요청이 10~20초 느림). 1 = 항상 켜짐(수업 중 강사 서버용)." }
+    }
+  },
+  "variables": {
+    "envName": "[concat(parameters('appName'), '-env')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2024-03-01",
+      "name": "[variables('envName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "workloadProfiles": [
+          { "name": "Consumption", "workloadProfileType": "Consumption" }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('appName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]"
+      ],
+      "properties": {
+        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+        "workloadProfileName": "Consumption",
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "targetPort": 8000,
+            "transport": "auto",
+            "allowInsecure": false
+          }
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "mcp",
+              "image": "[parameters('image')]",
+              "resources": { "cpu": "[json('0.5')]", "memory": "1Gi" },
+              "probes": [
+                {
+                  "type": "Liveness",
+                  "httpGet": { "path": "/healthz", "port": 8000 },
+                  "initialDelaySeconds": 10,
+                  "periodSeconds": 30
+                }
+              ]
+            }
+          ],
+          "scale": { "minReplicas": "[parameters('minReplicas')]", "maxReplicas": 1 }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "mcpUrl": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.App/containerApps', parameters('appName'))).configuration.ingress.fqdn, '/mcp')]"
+    }
+  }
+}

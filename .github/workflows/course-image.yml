@@ -1,0 +1,52 @@
+name: course-image
+
+# 수업용 MCP 서버 이미지를 빌드해 GHCR(ghcr.io/joocheol/jpm-424b2-mcp)에 올린다.
+on:
+  push:
+    branches: [course-dev]
+    paths:
+      - deploy/Dockerfile
+      - src/aifinance/course_server.py
+      - src/aifinance/rag.py
+      - .github/workflows/course-image.yml
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/joocheol/jpm-424b2-mcp
+  # course_db.py 로 만든 DB (공개 SEC 공시에서 추출). 릴리스 자산으로 올려 둔다
+  DB_URL: https://github.com/Joocheol/AIFinance/releases/download/course-db-v1/shinhan_jpm.duckdb
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          platforms: linux/amd64
+          push: true
+          build-args: DB_URL=${{ env.DB_URL }}
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/Joocheol/AIFinance
+            org.opencontainers.image.description=JPM 424B2 course MCP server (public SEC data, read-only)
+      - name: Smoke test
+        run: |
+          docker run -d -p 8000:8000 --name mcp ${{ env.IMAGE }}:${{ github.sha }}
+          for i in $(seq 1 30); do curl -sf localhost:8000/healthz && break; sleep 2; done
+          curl -s -X POST localhost:8000/mcp \
+            -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}' | head -c 600

@@ -25,6 +25,10 @@ MAX_CHARS = 1200  # 청크 최대 길이(문자)
 
 # ------------------------------------------------------------------ 청킹
 def paragraphs(text: str) -> list[str]:
+    """문단 단위로 나눈다. 줄바꿈이 거의 없는 한 줄짜리 텍스트(Dropbox 정규화 텍스트 등)는 문장 단위로 나눈다."""
+    if text.count("\n") < 5 and len(text) > 5000:
+        units = re.split(r"(?<=[.;])\s+(?=[A-Z●•“\"(])", re.sub(r"\s+", " ", text))
+        return [u.strip() for u in units if len(u.strip()) >= 20]
     paras = [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n\s*\n", text)]
     return [p for p in paras if len(p) >= 40]  # 페이지 번호·머리글 같은 짧은 조각 제거
 
@@ -57,7 +61,7 @@ def pack(paras: list[str], max_chars: int = MAX_CHARS) -> list[str]:
     return chunks
 
 
-def make_chunks(docs: pd.DataFrame, boilerplate: set[str]) -> pd.DataFrame:
+def make_chunks(docs: pd.DataFrame, boilerplate: set[str], pack_boilerplate: bool = False) -> pd.DataFrame:
     """docs: accession_number, cusip, product_name, doc_status, filing_date, text.
 
     청크 앞에 상품 정보 머리글을 붙인다(contextual header). 청크만 떼어 봐도 어느 상품 얘기인지 알 수 있어
@@ -74,7 +78,14 @@ def make_chunks(docs: pd.DataFrame, boilerplate: set[str]) -> pd.DataFrame:
                          "is_boilerplate": False, "text": f"{header}\n{c}"})
         for p in bp:  # 공통 문구는 처음 본 문서 기준으로 한 번만
             seen_bp.setdefault(_key(p), (d.accession_number, p))
-    for i, (acc, p) in enumerate(seen_bp.values()):
+    if pack_boilerplate:  # 문장 단위 공통 문구는 처음 등장한 순서대로 이어 붙여 청크로 만든다
+        by_acc: dict[str, list[str]] = {}
+        for acc, p in seen_bp.values():
+            by_acc.setdefault(acc, []).append(p)
+        bp_items = [(acc, c) for acc, ps in by_acc.items() for c in pack(ps)]
+    else:
+        bp_items = list(seen_bp.values())
+    for i, (acc, p) in enumerate(bp_items):
         rows.append({"accession_number": acc, "cusip": None, "seq": i, "is_boilerplate": True,
                      "text": f"[공통 문구 | JPMorgan Chase Financial 구조화 노트]\n{p}"})
     out = pd.DataFrame(rows)
@@ -85,9 +96,12 @@ def make_chunks(docs: pd.DataFrame, boilerplate: set[str]) -> pd.DataFrame:
 # ------------------------------------------------------------------ 임베딩
 @lru_cache(maxsize=2)
 def _model(name: str):
+    import os
+
     from fastembed import TextEmbedding
 
-    return TextEmbedding(model_name=name)
+    # 컨테이너에서는 이미지에 미리 받아 둔 모델 폴더(FASTEMBED_CACHE_PATH)를 쓴다
+    return TextEmbedding(model_name=name, cache_dir=os.getenv("FASTEMBED_CACHE_PATH"))
 
 
 def embed(texts: list[str], model: str = DEFAULT_MODEL, batch_size: int = 64) -> np.ndarray:

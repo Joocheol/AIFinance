@@ -1,0 +1,299 @@
+{
+ "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+ "contentVersion": "1.0.0.0",
+ "metadata": {
+  "description": "신한은행 JPM 424B2 수업: 내 PostgreSQL(pgvector) + Azure OpenAI 임베딩 + MCP 서버를 한 번에 만든다."
+ },
+ "parameters": {
+  "location": {
+   "type": "string",
+   "defaultValue": "[resourceGroup().location]",
+   "metadata": {
+    "description": "지역. 리소스 그룹 지역을 그대로 씁니다 (권장: Japan East)."
+   }
+  },
+  "dbAdminPassword": {
+   "type": "securestring",
+   "metadata": {
+    "description": "DB 관리자(jpmadmin) 비밀번호. 12자 이상, 대문자·소문자·숫자 포함. 잊지 않게 메모해 두세요."
+   },
+   "minLength": 12
+  },
+  "myIpAddress": {
+   "type": "string",
+   "defaultValue": "",
+   "metadata": {
+    "description": "내 노트북의 공인 IP (예: 165.132.0.1). 비워 두면 나중에 포털 '네트워킹'에서 추가합니다."
+   }
+  },
+  "embeddingCapacity": {
+   "type": "int",
+   "defaultValue": 350,
+   "metadata": {
+    "description": "임베딩 처리량(분당 천 토큰). 할당량이 부족하다는 오류가 나면 낮춥니다."
+   },
+   "minValue": 10,
+   "maxValue": 1000
+  },
+  "image": {
+   "type": "string",
+   "defaultValue": "ghcr.io/joocheol/jpm-424b2-pgmcp:latest",
+   "metadata": {
+    "description": "MCP 서버 이미지. 바꾸지 마세요."
+   }
+  },
+  "readerPassword": {
+   "type": "securestring",
+   "defaultValue": "[concat('Rd9', replace(newGuid(), '-', ''))]",
+   "metadata": {
+    "description": "MCP 서버 전용 읽기 계정 비밀번호 (자동 생성)."
+   }
+  }
+ },
+ "variables": {
+  "suffix": "[take(uniqueString(resourceGroup().id), 6)]",
+  "pgName": "[concat('jpm-pg-', variables('suffix'))]",
+  "aoaiName": "[concat('jpm-aoai-', variables('suffix'))]",
+  "appName": "[concat('jpm-mcp-', variables('suffix'))]",
+  "envName": "[concat('jpm-env-', variables('suffix'))]"
+ },
+ "resources": [
+  {
+   "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+   "apiVersion": "2024-08-01",
+   "name": "[variables('pgName')]",
+   "location": "[parameters('location')]",
+   "sku": {
+    "name": "Standard_B1ms",
+    "tier": "Burstable"
+   },
+   "properties": {
+    "version": "16",
+    "administratorLogin": "jpmadmin",
+    "administratorLoginPassword": "[parameters('dbAdminPassword')]",
+    "storage": {
+     "storageSizeGB": 32,
+     "autoGrow": "Disabled"
+    },
+    "backup": {
+     "backupRetentionDays": 7,
+     "geoRedundantBackup": "Disabled"
+    },
+    "highAvailability": {
+     "mode": "Disabled"
+    },
+    "network": {
+     "publicNetworkAccess": "Enabled"
+    },
+    "authConfig": {
+     "activeDirectoryAuth": "Disabled",
+     "passwordAuth": "Enabled"
+    }
+   }
+  },
+  {
+   "type": "Microsoft.DBforPostgreSQL/flexibleServers/configurations",
+   "apiVersion": "2024-08-01",
+   "name": "[concat(variables('pgName'), '/azure.extensions')]",
+   "dependsOn": [
+    "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', variables('pgName'))]"
+   ],
+   "properties": {
+    "value": "VECTOR",
+    "source": "user-override"
+   }
+  },
+  {
+   "type": "Microsoft.DBforPostgreSQL/flexibleServers/firewallRules",
+   "apiVersion": "2024-08-01",
+   "name": "[concat(variables('pgName'), '/AllowAzureServices')]",
+   "dependsOn": [
+    "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers/configurations', variables('pgName'), 'azure.extensions')]"
+   ],
+   "properties": {
+    "startIpAddress": "0.0.0.0",
+    "endIpAddress": "0.0.0.0"
+   }
+  },
+  {
+   "condition": "[not(empty(parameters('myIpAddress')))]",
+   "type": "Microsoft.DBforPostgreSQL/flexibleServers/firewallRules",
+   "apiVersion": "2024-08-01",
+   "name": "[concat(variables('pgName'), '/MyLaptop')]",
+   "dependsOn": [
+    "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers/firewallRules', variables('pgName'), 'AllowAzureServices')]"
+   ],
+   "properties": {
+    "startIpAddress": "[parameters('myIpAddress')]",
+    "endIpAddress": "[parameters('myIpAddress')]"
+   }
+  },
+  {
+   "type": "Microsoft.CognitiveServices/accounts",
+   "apiVersion": "2024-10-01",
+   "name": "[variables('aoaiName')]",
+   "location": "[parameters('location')]",
+   "kind": "OpenAI",
+   "sku": {
+    "name": "S0"
+   },
+   "properties": {
+    "customSubDomainName": "[variables('aoaiName')]",
+    "publicNetworkAccess": "Enabled"
+   }
+  },
+  {
+   "type": "Microsoft.CognitiveServices/accounts/deployments",
+   "apiVersion": "2024-10-01",
+   "name": "[concat(variables('aoaiName'), '/emb3s')]",
+   "dependsOn": [
+    "[resourceId('Microsoft.CognitiveServices/accounts', variables('aoaiName'))]"
+   ],
+   "sku": {
+    "name": "GlobalStandard",
+    "capacity": "[parameters('embeddingCapacity')]"
+   },
+   "properties": {
+    "model": {
+     "format": "OpenAI",
+     "name": "text-embedding-3-small",
+     "version": "1"
+    }
+   }
+  },
+  {
+   "type": "Microsoft.App/managedEnvironments",
+   "apiVersion": "2024-03-01",
+   "name": "[variables('envName')]",
+   "location": "[parameters('location')]",
+   "properties": {
+    "workloadProfiles": [
+     {
+      "name": "Consumption",
+      "workloadProfileType": "Consumption"
+     }
+    ]
+   }
+  },
+  {
+   "type": "Microsoft.App/containerApps",
+   "apiVersion": "2024-03-01",
+   "name": "[variables('appName')]",
+   "location": "[parameters('location')]",
+   "dependsOn": [
+    "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+    "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers/firewallRules', variables('pgName'), 'AllowAzureServices')]",
+    "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('aoaiName'), 'emb3s')]"
+   ],
+   "properties": {
+    "environmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+    "workloadProfileName": "Consumption",
+    "configuration": {
+     "ingress": {
+      "external": true,
+      "targetPort": 8000,
+      "transport": "auto",
+      "allowInsecure": false
+     },
+     "secrets": [
+      {
+       "name": "pgadmin",
+       "value": "[parameters('dbAdminPassword')]"
+      },
+      {
+       "name": "pgreader",
+       "value": "[parameters('readerPassword')]"
+      },
+      {
+       "name": "aoaikey",
+       "value": "[listKeys(variables('aoaiName'), '2024-10-01').key1]"
+      }
+     ]
+    },
+    "template": {
+     "containers": [
+      {
+       "name": "mcp",
+       "image": "[parameters('image')]",
+       "resources": {
+        "cpu": "[json('0.5')]",
+        "memory": "1Gi"
+       },
+       "env": [
+        {
+         "name": "PGHOST",
+         "value": "[reference(variables('pgName')).fullyQualifiedDomainName]"
+        },
+        {
+         "name": "PGDATABASE",
+         "value": "postgres"
+        },
+        {
+         "name": "PGADMIN_USER",
+         "value": "jpmadmin"
+        },
+        {
+         "name": "PGADMIN_PASSWORD",
+         "secretRef": "pgadmin"
+        },
+        {
+         "name": "PGREADER_PASSWORD",
+         "secretRef": "pgreader"
+        },
+        {
+         "name": "AOAI_ENDPOINT",
+         "value": "[reference(variables('aoaiName')).endpoint]"
+        },
+        {
+         "name": "AOAI_KEY",
+         "secretRef": "aoaikey"
+        },
+        {
+         "name": "AOAI_DEPLOYMENT",
+         "value": "emb3s"
+        }
+       ],
+       "probes": [
+        {
+         "type": "Liveness",
+         "httpGet": {
+          "path": "/healthz",
+          "port": 8000
+         },
+         "initialDelaySeconds": 10,
+         "periodSeconds": 30
+        }
+       ]
+      }
+     ],
+     "scale": {
+      "minReplicas": 0,
+      "maxReplicas": 1
+     }
+    }
+   }
+  }
+ ],
+ "outputs": {
+  "mcpUrl": {
+   "type": "string",
+   "value": "[concat('https://', reference(variables('appName')).configuration.ingress.fqdn, '/mcp')]"
+  },
+  "dbHost": {
+   "type": "string",
+   "value": "[reference(variables('pgName')).fullyQualifiedDomainName]"
+  },
+  "dbUser": {
+   "type": "string",
+   "value": "jpmadmin"
+  },
+  "openaiEndpoint": {
+   "type": "string",
+   "value": "[reference(variables('aoaiName')).endpoint]"
+  },
+  "openaiKeyWhere": {
+   "type": "string",
+   "value": "[concat('Azure 포털 → ', variables('aoaiName'), ' → 리소스 관리 → 키 및 엔드포인트 → 키 1')]"
+  }
+ }
+}

@@ -38,7 +38,7 @@
 | [02_활동지_1일차.md](02_활동지_1일차.md) | 참가자 | 1일차 단계별 활동과 프롬프트, 기록표 |
 | [03_활동지_2일차.md](03_활동지_2일차.md) | 참가자 | 2일차 단계별 활동과 프롬프트, 기록표 |
 | [04_프로젝트_지침.md](04_프로젝트_지침.md) | 참가자 | Claude 프로젝트에 붙여 넣을 지침 |
-| [data/jpm_products_slim.csv](data/jpm_products_slim.csv) | 참가자 | 상품 10,410개 핵심 컬럼 (분석 도구 업로드용, 2.7MB) |
+| [data/jpm_products_slim.csv](data/jpm_products_slim.csv) | 참가자 | 상품 10,410개 핵심 컬럼 (분석 도구 업로드용, 2.7MB). 수강생에게는 Dropbox 수강생용 ZIP에 포함해 배포 |
 | [../deploy/README.md](../deploy/README.md) | 참가자 | 내 MCP 서버 배포·연결 안내 |
 
 ## 데이터

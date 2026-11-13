@@ -1,0 +1,22 @@
+# 신한은행 수업용 MCP 서버 이미지 (수강생 자신의 Azure PostgreSQL 을 읽는다)
+#   빌드: GitHub Actions (.github/workflows/pg-image.yml)
+#   실행: 포트 8000, 엔드포인트 /mcp, 상태 확인 /healthz. DB 접속 정보는 환경변수로 받는다 (pg_server.py 참고)
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    PORT=8000 \
+    MAX_ROWS=50 \
+    RATE_LIMIT_PER_MIN=120
+
+WORKDIR /app
+RUN pip install --no-cache-dir \
+    "mcp==2.3.0" "uvicorn==0.54.0" "starlette==1.10.0" "pandas==3.1.1" "tabulate==0.10.0" \
+    "psycopg[binary]==3.3.9" "httpx==0.28.1"
+COPY src/aifinance/pg_server.py ./src/aifinance/
+RUN touch src/aifinance/__init__.py  # 패키지의 다른 모듈(수집·분석용 의존성)은 넣지 않는다
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"
+CMD ["python", "-m", "aifinance.pg_server"]

@@ -1,0 +1,49 @@
+name: pg-image
+
+# 수강생 PostgreSQL 을 읽는 수업용 MCP 서버 이미지를 빌드해 GHCR(ghcr.io/joocheol/jpm-424b2-pgmcp)에 올린다.
+# DB 는 이미지에 넣지 않는다. 접속 정보는 배포 템플릿(deploy/azure/azuredeploy-pg.json)이 환경변수로 넣는다.
+on:
+  push:
+    branches: [course-dev]
+    paths:
+      - deploy/Dockerfile.pg
+      - src/aifinance/pg_server.py
+      - .github/workflows/pg-image.yml
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/joocheol/jpm-424b2-pgmcp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.pg
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/Joocheol/AIFinance
+            org.opencontainers.image.description=JPM 424B2 course MCP server for the learner's own Azure PostgreSQL (read-only)
+      - name: Smoke test (no DB; server must start and answer initialize)
+        run: |
+          docker run -d -p 8000:8000 --name mcp ${{ env.IMAGE }}:${{ github.sha }}
+          for i in $(seq 1 30); do curl -sf localhost:8000/healthz && break; sleep 2; done
+          curl -s -X POST localhost:8000/mcp \
+            -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}' | head -c 600

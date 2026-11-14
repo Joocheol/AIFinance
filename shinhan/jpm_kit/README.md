@@ -1,6 +1,7 @@
 # 실습 키트 `jpm_kit` — 내 Azure DB에 공시를 넣고, 검색 품질을 재고, 벡터로 개선한다
 
 Claude Desktop **Code 탭**에서 폴더 `jpm-class` 를 열고, Claude에게 아래 스크립트를 설명·실행하게 합니다.
+`jpm-class` 는 Mac·Windows 모두 **문서(Documents)** 폴더 안에 있고, 이 파일의 위치는 `문서/jpm-class/jpm_kit/README.md` 입니다.
 모든 스크립트는 `uv run jpm_kit/<이름>.py` 로 실행합니다 (필요한 패키지는 uv가 자동으로 받습니다).
 
 ## 준비: `.env`

@@ -1,0 +1,4 @@
+.env
+out/
+data/
+.env.txt

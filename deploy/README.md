@@ -1,4 +1,30 @@
-# 내 MCP 서버를 Azure에 올리고 Claude에 연결하기
+# Azure 배포 템플릿
+
+| 템플릿 | 쓰는 곳 | 만드는 것 |
+|---|---|---|
+| **[azure/azuredeploy-pg.json](azure/azuredeploy-pg.json)** (현재 수업) | 신한 과정 1일차 활동 2 | 수강생 구독에 PostgreSQL Flexible Server(B1ms, pgvector) + Azure OpenAI(`text-embedding-3-small`, 배포 이름 `emb3s`) + MCP 서버(Container Apps). DB는 비어 있고, 실습 키트(`shinhan/jpm_kit`)가 채운다 |
+| [azure/azuredeploy.json](azure/azuredeploy.json) (이전 판) | 아래 "이전 판" | 강사가 만든 DuckDB를 넣은 MCP 서버 하나 |
+
+## 현재 수업: 내 DB + 임베딩 + MCP 서버
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJoocheol%2FAIFinance%2Fcourse-dev%2Fdeploy%2Fazure%2Fazuredeploy-pg.json)
+
+| 입력칸 | 값 |
+|---|---|
+| 리소스 그룹 / 지역 | 새로 만들기 `jpm-course` / **Japan East** (한국 지역은 무료 등급 DB 불가) |
+| Db Admin Password | 12자 이상, 대·소문자·숫자 |
+| My Ip Address | 노트북의 공인 IP (DB 방화벽 허용). 비우면 나중에 포털 → 네트워킹에서 추가 |
+| Embedding Capacity | 기본 1000 (= 분당 100만 토큰, 무료 계정 Japan East 한도 전부) |
+
+- 출력: `mcpUrl`(커넥터), `dbHost`, `dbUser`(jpmadmin), `openaiEndpoint`, `openaiKeyWhere`(키 위치 안내)
+- 시험 기록(2026-11-14): 새 무료 계정 **8분 14초**, Azure for Students 구독 7.6분. MCP 서버는 처음 연결될 때 읽기 전용 계정 `mcp_reader`를 만들고 그 계정으로만 읽는다(DELETE 등은 거부).
+- 이미지: `ghcr.io/joocheol/jpm-424b2-pgmcp:latest` (공개). `src/aifinance/pg_server.py` 나 `deploy/Dockerfile.pg` 가 바뀌면 GitHub Actions `pg-image` 가 다시 빌드한다.
+- 같은 구독에 두 번째로 배포하면 Azure OpenAI 계정 수(지역당 1개)나 TPM 한도 때문에 InsufficientQuota가 난다 → 앞 리소스 그룹을 지우거나 Capacity를 낮춘다.
+
+---
+
+# 이전 판: 강사 DB를 담은 MCP 서버 하나
+
 
 JP Morgan 구조화 노트 1만여 개 데이터(SEC 공시, 2025-10~2026-09)를 Claude가 직접 조회할 수 있는 서버를
 **내 Azure 무료 계정**에 올리고, **Claude 커스텀 커넥터**로 연결합니다. 코드는 다루지 않습니다.

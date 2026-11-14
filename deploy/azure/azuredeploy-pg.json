@@ -28,9 +28,9 @@
   },
   "embeddingCapacity": {
    "type": "int",
-   "defaultValue": 350,
+   "defaultValue": 1000,
    "metadata": {
-    "description": "임베딩 처리량(분당 천 토큰). 할당량이 부족하다는 오류가 나면 낮춥니다."
+    "description": "임베딩 처리량(분당 천 토큰). 무료 계정 Japan East 한도는 1000. 할당량 부족 오류가 나면 낮춥니다."
    },
    "minValue": 10,
    "maxValue": 1000

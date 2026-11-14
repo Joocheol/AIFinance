@@ -82,7 +82,8 @@ n_products = con.execute("SELECT count(*) FROM products").fetchall()[0][0]
 # 4) 먼저 읽기
 (kit / "README_먼저읽기.txt").write_text(f"""JPM 424B2 AI Finance 실습 키트 v2 (신한은행 FE/RM 과정)
 
-이 폴더(jpm_kit)가 jpm-class 폴더 바로 안에 있어야 합니다:  jpm-class/jpm_kit/README.md
+jpm-class 폴더는 Mac·Windows 모두 문서(Documents) 폴더 안에 만듭니다.
+이 폴더(jpm_kit)가 jpm-class 폴더 바로 안에 있어야 합니다:  문서/jpm-class/jpm_kit/README.md
   - Windows: ZIP을 마우스 오른쪽 → 모두 압축 풀기 → 대상 폴더를 jpm-class 로 지정
   - Mac: ZIP을 더블클릭해 생긴 jpm_kit 폴더를 jpm-class 안으로 옮기기
 

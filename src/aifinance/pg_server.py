@@ -22,6 +22,7 @@ import os
 import re
 import time
 from collections import deque
+from functools import wraps
 
 import httpx
 import pandas as pd
@@ -134,6 +135,22 @@ def _embed(text: str) -> list[float] | None:
     return r.json()["data"][0]["embedding"]
 
 
+def _friendly(fn):
+    """표가 아직 없을 때(적재 전) 알 수 없는 오류 대신 할 일을 알려 준다."""
+    @wraps(fn)
+    def inner(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except psycopg.errors.UndefinedTable as e:
+            table = re.search(r'relation "([^"]+)"', str(e))
+            name = table.group(1) if table else "필요한"
+            return (f"내 DB에 아직 {name} 표가 없습니다. Code 탭에서 `uv run jpm_kit/01_load.py` 로 적재를 먼저 하세요"
+                    + (" (검색에는 `04_embed.py` 벡터화도 필요합니다)." if name == "chunks" else "."))
+        except psycopg.errors.UndefinedColumn:
+            return "검색용 컬럼(emb)이 아직 없습니다. Code 탭에서 `uv run jpm_kit/04_embed.py` 로 벡터화를 먼저 하세요."
+    return inner
+
+
 @server.tool()
 def describe_database() -> str:
     """내 DB 의 테이블·컬럼 구조와 행 수, 컬럼 설명(있으면)을 보여 준다. SQL 을 쓰기 전에 먼저 호출하라."""
@@ -148,6 +165,8 @@ def describe_database() -> str:
                              {"LEFT JOIN data_dictionary d ON d.field = c.column_name" if has_dd else ""}
                              WHERE c.table_schema = 'public' AND c.table_name <> 'data_dictionary' AND c.column_name NOT IN ('tsv', 'emb')
                              ORDER BY c.table_name, c.ordinal_position""")
+    if tables.empty:
+        return "내 DB가 아직 비어 있습니다. Code 탭에서 `uv run jpm_kit/01_load.py` 로 공시와 상품 표를 먼저 적재하세요."
     return "### 테이블과 행 수\n" + _table(tables) + "\n\n### 컬럼 (chunks 의 tsv·emb 색인 컬럼은 생략)\n" + cols.to_markdown(index=False)
 
 
@@ -174,6 +193,7 @@ def query_products(sql: str) -> str:
 
 
 @server.tool()
+@_friendly
 def search_filings(query: str, k: int = 5, mode: str = "hybrid", accession: str = "") -> str:
     """내가 적재한 공시 원문 청크를 검색한다. 검색어는 공시 용어(영어)로 쓴다.
 
@@ -222,6 +242,7 @@ def search_filings(query: str, k: int = 5, mode: str = "hybrid", accession: str 
 
 
 @server.tool()
+@_friendly
 def get_product(cusip: str) -> str:
     """CUSIP 하나의 조건(값이 있는 항목만)과 SEC 원문 링크를 보여 준다."""
     with _connect() as conn:

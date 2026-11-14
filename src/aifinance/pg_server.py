@@ -47,6 +47,7 @@ JP Morgan 구조화 노트 수업 데이터입니다. 수강생이 자신의 Azu
 도구 선택:
 - 숫자·집계·비교 → query_products (PostgreSQL SQL). 처음에는 describe_database 로 컬럼 뜻과 단위를 확인하세요.
 - 조건의 의미·위험·계산 방식 → search_filings. 공시가 영어이므로 검색어는 424B2 공시 용어(영어)로 바꿔서 쓰세요.
+- 상품 하나의 조건을 원문으로 확인할 때는 get_product 의 accession 을 search_filings(accession=...) 에 넣어 그 공시 안에서만 찾으세요.
 - 특정 상품 → get_product(cusip).
 
 반드시 지킬 규칙:
@@ -173,27 +174,39 @@ def query_products(sql: str) -> str:
 
 
 @server.tool()
-def search_filings(query: str, k: int = 5, mode: str = "hybrid") -> str:
+def search_filings(query: str, k: int = 5, mode: str = "hybrid", accession: str = "") -> str:
     """내가 적재한 공시 원문 청크를 검색한다. 검색어는 공시 용어(영어)로 쓴다.
 
     mode: 'keyword'(PostgreSQL 전문 검색), 'vector'(pgvector 의미 검색), 'hybrid'(둘을 순위 융합, 기본값)
+    accession: 상품 하나의 조건을 확인할 때는 get_product 가 알려 준 accession(예: 0001839882-26-045035)을 넣어
+               그 공시 안에서만 찾는다. 같은 기초자산의 다른 상품 공시와 섞이지 않게 하려면 반드시 지정한다.
+               (여러 공시에 반복되는 공통 문구는 처음 나온 공시에만 들어 있으므로 지정하면 빠질 수 있다.)
     """
     k = min(max(k, 1), 8)
     mode = mode if mode in ("keyword", "vector", "hybrid") else "hybrid"
+    acc = accession.strip()
     with _connect() as conn:
+        if acc and not _df(conn, "SELECT 1 FROM chunks WHERE accession = %s LIMIT 1", (acc,)).shape[0]:
+            return f"accession {acc} 의 원문이 내 DB에 없습니다. 내 DB에는 적재한 달(9월)의 공시만 있습니다. SEC 링크로 직접 확인하세요."
+        where = "AND accession = %s" if acc else ""
         kw = vec = pd.DataFrame(columns=["chunk_id", "accession", "body"])
         if mode in ("keyword", "hybrid"):
-            kw = _df(conn, """SELECT chunk_id, accession, body FROM chunks,
+            kw = _df(conn, f"""SELECT chunk_id, accession, body FROM chunks,
                                 to_tsquery('english', array_to_string(tsvector_to_array(to_tsvector('english', %s)), ' | ')) q
-                              WHERE tsv @@ q ORDER BY ts_rank_cd(tsv, q) DESC LIMIT 50""", (query,))
+                              WHERE tsv @@ q {where} ORDER BY ts_rank_cd(tsv, q) DESC, chunk_id LIMIT 50""",
+                     (query, acc) if acc else (query,))
         if mode in ("vector", "hybrid"):
             v = _embed(query)
             if v is None and mode == "vector":
                 return "벡터 검색을 쓰려면 서버에 AOAI_ENDPOINT, AOAI_KEY 를 설정해야 합니다."
             if v is not None:
-                conn.execute("SET hnsw.ef_search = 100")
-                vec = _df(conn, "SELECT chunk_id, accession, body FROM chunks ORDER BY emb <=> %s::vector LIMIT 50",
-                          ("[" + ",".join(f"{x:.6f}" for x in v) + "]",))
+                lit = "[" + ",".join(f"{x:.6f}" for x in v) + "]"
+                if acc:  # 공시 하나 안에서는 색인 없이 정확히 계산한다 (청크 수십 개)
+                    vec = _df(conn, """WITH d AS MATERIALIZED (SELECT chunk_id, accession, body, emb FROM chunks WHERE accession = %s)
+                                       SELECT chunk_id, accession, body FROM d ORDER BY emb <=> %s::vector LIMIT 50""", (acc, lit))
+                else:
+                    conn.execute("SET hnsw.ef_search = 100")
+                    vec = _df(conn, "SELECT chunk_id, accession, body FROM chunks ORDER BY emb <=> %s::vector LIMIT 50", (lit,))
     score: dict[int, list] = {}
     for lst in (kw, vec):
         for r, row in enumerate(lst.itertuples()):

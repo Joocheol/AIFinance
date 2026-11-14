@@ -367,7 +367,7 @@ EVAL_FIELDS = [f for fields in FIELD_GROUPS.values() for f in fields if f != "pr
 def load_gold(gold_dir: Path) -> dict[str, TermSheet]:
     out = {}
     for p in sorted(Path(gold_dir).glob("*.json")):
-        d = json.loads(p.read_text())
+        d = json.loads(p.read_text(encoding="utf-8"))
         d.pop("_evidence", None)
         out[d["accession_number"]] = TermSheet.model_validate(d)
     return out

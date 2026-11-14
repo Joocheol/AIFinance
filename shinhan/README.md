@@ -71,5 +71,7 @@ Dropbox 원문 (2026-09, 1,890건) ─▶ Claude Code (내 노트북) ─▶ 내
 | 배포 템플릿 → PostgreSQL·Azure OpenAI·MCP 서버 | ✓ 시험 구독 7.6분, **새 무료 계정 8분 14초** (Embedding Capacity 1000), 커넥터 호출까지 확인 |
 | 무료 계정 할당량 | ✓ Japan East `text-embedding-3-small` GlobalStandard 한도 1000K TPM, OpenAI 계정 1개. PostgreSQL·App·OperationalInsights 공급자는 배포가 자동 등록 (CognitiveServices는 할당량 조회 때 먼저 등록, 1분 23초) |
 | 실습 키트 `jpm_kit` | ✓ 스크립트 01~05를 새 폴더에 풀어 처음부터 끝까지 실행 확인 (정답표 숫자) |
-| 수강생용 ZIP v2 | ✓ `uv run shinhan/build_kit_zip.py` → Dropbox `수강생용_실습키트_v2.zip` (약 28MB). **Dropbox 파일 링크는 강사가 만들어 홈페이지에 넣는다** |
-| Windows 리허설 | 키트로 다시 할 것 (Code 탭 + `uv run`) |
+| 수강생용 ZIP v2 | `uv run shinhan/build_kit_zip.py` → Dropbox `수강생용_실습키트_v2.zip` (약 28MB). 최종 리허설 뒤 다시 만들고 파일 링크를 홈페이지에 넣는다 |
+| Windows 리허설 | ✓ Windows 11 ARM64 Code 탭: uv 설치 → 키트 01·02·04·05 → 실험 B·D. cp949 인코딩 버그 1건 수정 |
+| 조별 실험 A~D | ✓ 리허설 값 정답표에 기록 (D가 가장 큰 개선, B는 하락) |
+| ZIP 공유 링크 | 강사 리허설 한 번 더 한 뒤 만든다 |

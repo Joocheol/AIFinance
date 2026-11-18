@@ -1,8 +1,8 @@
 """신한은행 수업용 12개월 DB (Dropbox 수업 자료 기준).
 
-    uv run python -m aifinance.course_db --data <압축 푼 03_분석 폴더>/data --text <정규화 텍스트 폴더>/raw/text
+    uv run python -m aifinance.course_db --data <상품표v2_data.zip 압축 해제>/data --text <텍스트v2_27000.zip 압축 해제>/raw/text
 
-- 상품 표는 Dropbox 의 products_in_period.csv(10,410개, 예정 발행일 2025-10-01~2026-09-30)를 그대로 쓴다.
+- 상품 표는 Dropbox 06_텍스트v2_상품표v2 의 products_in_period.csv(10,542개, 예정 발행일 2025-10-01~2026-09-30)를 그대로 쓴다.
   수업 Excel 과 같은 분모·같은 숫자를 Claude 가 보게 하기 위해서다.
 - 판매 채널(channel)만 원문에서 판별해 덧붙인다 (모듈 6의 규칙).
 - 공시 원문 검색 색인은 확정 공시의 상품별 문단(앞부분) + 공통 문구로 만든다.
@@ -93,8 +93,8 @@ def build(data_dir: Path, text_dir: Path, db_path: Path = COURSE_DB, chunks_per_
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--data", required=True, type=Path, help="03_분석_출처_검증_수업자료의 data/ 폴더")
-    ap.add_argument("--text", required=True, type=Path, help="02_정규화텍스트의 raw/text/ 폴더")
+    ap.add_argument("--data", required=True, type=Path, help="상품표v2_data.zip 을 푼 data/ 폴더 (v1: 03_분석_출처_검증_수업자료의 data/)")
+    ap.add_argument("--text", required=True, type=Path, help="텍스트v2_27000.zip 을 푼 raw/text/ 폴더")
     ap.add_argument("--db", type=Path, default=COURSE_DB)
     args = ap.parse_args()
     build(args.data, args.text, args.db)

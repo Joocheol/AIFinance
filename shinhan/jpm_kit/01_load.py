@@ -7,7 +7,7 @@
 만드는 표
   filings         공시 1건 = 1행 (accession, month, chars, body)
   chunks          공시를 검색 단위(최대 1,200자)로 자른 조각. tsv = 키워드 색인(자동), emb = 벡터(04_embed.py가 채움)
-  products        강사가 같은 파이프라인으로 만든 12개월 상품 표 10,410행 (상품 1개 = 1행)
+  products        강사가 같은 파이프라인으로 만든 12개월 상품 표 10,542행 (상품 1개 = 1행)
   data_dictionary products 컬럼의 뜻과 단위
 
 실행: uv run jpm_kit/01_load.py

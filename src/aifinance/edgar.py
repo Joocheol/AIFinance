@@ -130,28 +130,10 @@ class EdgarClient:
 
 
 def html_to_text(raw: str | bytes) -> str:
-    """공시 HTML 을 읽기 쉬운 평문으로 변환. 표는 셀을 ' | ' 로 이어 한 줄로 만든다."""
-    soup = BeautifulSoup(raw, "lxml")
-    for tag in soup(["script", "style"]):
-        tag.decompose()
-    # 표: 행 단위로 셀을 ' | ' 로 잇는다 (셀 안의 줄바꿈은 공백으로)
-    for tr in soup.find_all("tr"):
-        cells = [_squash(c.get_text(" ")) for c in tr.find_all(["td", "th"])]
-        cells = [c for c in cells if c]
-        tr.replace_with(soup.new_string("\n" + " | ".join(cells) + "\n"))
-    # 블록 요소 경계에만 줄바꿈을 넣는다 (인라인 <span>/<font> 는 이어 붙임)
-    for br in soup.find_all("br"):
-        br.replace_with("\n")
-    for tag in soup.find_all(BLOCK_TAGS):
-        tag.insert_before("\n")
-        tag.insert_after("\n")
-    lines = (_squash(line) for line in html.unescape(soup.get_text("")).splitlines())
-    text = "\n".join(lines)
-    return re.sub(r"\n{3,}", "\n\n", text).strip()
+    """공시 HTML 을 평문으로 변환한다 (텍스트 v2: 원문 글자 보존, 문단·표 구조 유지).
 
+    구현은 aifinance.htmltext — 일반 HTML 과 PDF 를 HTML 로 바꾼 공시(pdf2htmlEX)를 따로 처리한다.
+    """
+    from .htmltext import convert
 
-BLOCK_TAGS = ["p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "table", "section"]
-
-
-def _squash(s: str) -> str:
-    return re.sub(r"\s+", " ", s.replace("\xa0", " ")).strip()
+    return convert(raw)

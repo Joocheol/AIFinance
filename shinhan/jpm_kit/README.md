@@ -13,7 +13,7 @@ Claude Desktop **Code 탭**에서 폴더 `jpm-class` 를 열고, Claude에게 �
 
 | 순서 | 스크립트 | 하는 일 | 시간(참고) |
 |---|---|---|---|
-| 활동 3 | `01_load.py` | 9월 공시 1,890건 → `filings`, 청크 약 4.8만 개 → `chunks`(키워드 색인 포함), 상품 표 10,410개 → `products`, 컬럼 설명 → `data_dictionary` | 약 1분 |
+| 활동 3 | `01_load.py` | 9월 공시 1,890건 → `filings`, 청크 약 5.5만 개 → `chunks`(키워드 색인 포함), 상품 표 10,542개 → `products`, 컬럼 설명 → `data_dictionary` | 약 1분 |
 | 활동 3 | `04_embed.py` | 청크를 내 Azure OpenAI로 벡터화 → `chunks.emb`, 끝나면 벡터 색인(HNSW). **백그라운드로 실행**, 중간에 멈춰도 다시 실행하면 이어서 | 약 15분 (분당 100만 토큰 기준) |
 | 활동 4 | `02_extract.py` | 규칙으로 상품 조건 추출 → 정답 27건과 필드별 채점 → `my_products`. `--score-only` 는 채점만 | 1~2분 |
 | 활동 5 | `03_search_eval.py` | 키워드 검색을 20문항 × 질문 형태 3가지로 채점 (hit@5) | 1분 |
@@ -38,9 +38,9 @@ A·B는 청크를 새로 만들어 다시 벡터화하므로 시간과 비용이
 ## 데이터 (`data/`)
 | 경로 | 내용 |
 |---|---|
-| `filings_2026-09/*.txt` | 2026년 9월 제출 JPM 424B2 1,890건의 정규화 텍스트 (파일 이름 = accession) |
+| `filings_2026-09/*.txt` | 2026년 9월 제출 JPM 424B2 1,890건의 텍스트 (텍스트 v2: SEC 원문 HTML의 글자를 그대로, 문단·표의 한 행이 한 줄씩. 파일 이름 = accession) |
 | `gold/*.json`, `gold_texts/*.txt` | 사람이 원문과 대조해 만든 정답 27건과 그 원문 |
 | `eval/retrieval_questions.jsonl` | 검색 문항 20개 (영어, 바꿔 말한 영어, 한국어, 영어 검색어, 정답 문구) |
-| `products.csv`, `products_schema.json` | 12개월 상품 표 10,410행과 컬럼 형식 |
+| `products.csv`, `products_schema.json` | 12개월 상품 표 10,542행과 컬럼 형식 |
 
 모두 공개된 SEC 공시에서 만든 자료입니다. 원문: `https://www.sec.gov/Archives/edgar/data/19617/<accession에서 - 를 뺀 것>/`

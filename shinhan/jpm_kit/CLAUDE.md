@@ -16,13 +16,13 @@
 - Windows PowerShell에서 여러 명령을 `;` 로 한 줄에 이으면 `uv` 가 드물게 'unrecognized subcommand' 오류를 낸다. 그때는 명령을 하나씩 다시 실행한다.
 
 ## DB
-- 내 Azure PostgreSQL (pgvector). 표: `filings`(공시 원문), `chunks`(청크, tsv=키워드 색인, emb=벡터), `products`(상품 10,410개), `data_dictionary`(컬럼 설명), `my_products`(내가 추출한 표)
+- 내 Azure PostgreSQL (pgvector). 표: `filings`(공시 원문), `chunks`(청크, tsv=키워드 색인, emb=벡터), `products`(상품 10,542개), `data_dictionary`(컬럼 설명), `my_products`(내가 추출한 표)
 - SQL로 둘러볼 때는 `jpm_kit/out/` 에 짧은 `.py` 파일을 만들어 `import sys; sys.path.insert(0, 'jpm_kit'); import kit_common as kc` 후 `kc.connect()` 를 쓰고, `uv run --with "psycopg[binary]" python jpm_kit/out/<파일>.py` 로 실행한다.
   `python -c "..."` 는 쓰지 않는다: Windows PowerShell 5.1은 `-c` 안의 큰따옴표를 깨뜨린다(리허설에서 확인). `body`·`emb` 컬럼 전체를 출력하지 않는다(너무 길다).
 - 표를 지우거나 바꾸기 전에는 사용자에게 먼저 묻는다. 실험은 새 표(`chunks_a` 등)에 한다.
 
 ## 데이터
-- `data/filings_2026-09/` 9월 공시 1,890건(정규화 텍스트), `data/gold/` 정답 27건, `data/gold_texts/` 정답 문서 원문,
+- `data/filings_2026-09/` 9월 공시 1,890건(텍스트 v2: 문단·표의 한 행이 한 줄씩, 표 칸은 ` | `), `data/gold/` 정답 27건, `data/gold_texts/` 정답 문서 원문,
   `data/eval/retrieval_questions.jsonl` 검색 문항 20개, `data/products.csv` 상품 표
 - 모두 공개 SEC 공시에서 만든 자료다. 회사·고객 자료를 이 폴더에 넣지 않는다.
 - 숫자를 말할 때는 분모(문서 수 / 상품 수 / 값이 있는 상품 수)를 밝힌다.

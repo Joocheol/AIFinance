@@ -1,10 +1,10 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["duckdb>=1.1"]
+# dependencies = ["duckdb>=1.1", "beautifulsoup4", "lxml"]
 # ///
 """수강생용 실습 키트 ZIP(v2)을 만든다 (강사용).
 
-입력: 저장소 shinhan/jpm_kit 코드 + Dropbox 정규화 텍스트·9월 HTML 목록 + gold/ + eval/ + data/shinhan_jpm.duckdb
+입력: 저장소 shinhan/jpm_kit 코드 + Dropbox 텍스트 v2(06_텍스트v2_상품표v2)·9월 HTML 목록 + gold/ + eval/ + data/shinhan_jpm.duckdb
 출력: <out>/수강생용_실습키트_v2.zip — 안에는 jpm_kit/ 폴더 하나 (압축을 jpm-class 에 풀면 jpm-class/jpm_kit/)
 
 실행: uv run shinhan/build_kit_zip.py [--out 폴더]
@@ -14,9 +14,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 import shutil
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -24,8 +26,14 @@ from pathlib import Path
 import duckdb
 
 REPO = Path(__file__).resolve().parents[1]
+# 텍스트 v2 변환기 (aifinance 패키지 전체를 불러오지 않고 이 파일만)
+_spec = importlib.util.spec_from_file_location("htmltext", REPO / "src" / "aifinance" / "htmltext.py")
+_ht = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_ht)
+convert = _ht.convert
 KIT_SRC = REPO / "shinhan" / "jpm_kit"
 DBX = Path.home() / "Library/CloudStorage/Dropbox/JPMorgan_424B2_AI_Finance_수업자료"
+TEXT_ZIP = DBX / "06_텍스트v2_상품표v2" / "텍스트v2_27000.zip"  # shinhan/tools/text_v2.py 로 만든 텍스트
 MONTH = "2026-09"
 
 ap = argparse.ArgumentParser()
@@ -45,21 +53,22 @@ data = kit / "data"
 with zipfile.ZipFile(DBX / "01_SEC_공시_HTML" / f"main_{MONTH}.zip") as z:
     month_accs = sorted({Path(n).stem for n in z.namelist() if n.endswith(".html")})
 gold_accs = sorted(p.stem for p in (REPO / "gold").glob("*.json"))
-with zipfile.ZipFile(DBX / "02_정규화텍스트_27000.zip") as z:
+with zipfile.ZipFile(TEXT_ZIP) as z:
     names = {Path(n).stem: n for n in z.namelist() if n.endswith(".txt")}
     missing = [a for a in month_accs if a not in names]
     for a in month_accs:
         if a in names:
             (data / f"filings_{MONTH}" / f"{a}.txt").write_bytes(z.read(names[a]))
     src_note = []
-    for a in gold_accs:  # 정규화 텍스트에 없는 정답 문서는 저장소 텍스트를 한 줄로 펴서 쓴다
+    for a in gold_accs:  # 정답 문서: 텍스트 v2, 없으면 저장소의 원문 HTML(data/raw)을 같은 변환기로
         if a in names:
             (data / "gold_texts" / f"{a}.txt").write_bytes(z.read(names[a]))
-            src_note.append(f"{a}\tDropbox 정규화 텍스트")
+            src_note.append(f"{a}\t텍스트 v2 (Dropbox 원문 HTML)")
         else:
-            flat = re.sub(r"\s+", " ", (REPO / "data" / "text" / f"{a}.txt").read_text(encoding="utf-8")).strip()
-            (data / "gold_texts" / f"{a}.txt").write_text(flat, encoding="utf-8")
-            src_note.append(f"{a}\tSEC 원문 HTML → 텍스트(공백을 한 칸으로)")
+            x, y, w = a.split("-")
+            html = sorted((REPO / "data" / "raw").glob(f"{x}{y}{w}_*.htm"))[0]
+            (data / "gold_texts" / f"{a}.txt").write_text(convert(html.read_bytes()), encoding="utf-8")
+            src_note.append(f"{a}\t텍스트 v2 (SEC 원문 HTML {html.name})")
     (data / "gold_texts" / "SOURCES.tsv").write_text("accession\tsource\n" + "\n".join(src_note) + "\n", encoding="utf-8")
 print(f"9월 공시 {len(month_accs)}건 중 텍스트 {len(month_accs) - len(missing)}건 (없음 {len(missing)})")
 

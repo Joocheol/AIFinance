@@ -83,7 +83,7 @@ Claude가 `describe_database`, `query_products` 도구를 호출하는 과정이
 
 ```bash
 # 1) Dropbox 수업 자료로 DB 만들기
-uv run python -m aifinance.course_db --data <03_분석 압축 해제>/data --text <02_정규화텍스트 압축 해제>/raw/text
+uv run python -m aifinance.course_db --data <06_텍스트v2_상품표v2/상품표v2_data.zip 압축 해제>/data --text <06_텍스트v2_상품표v2/텍스트v2_27000.zip 압축 해제>/raw/text
 # 2) 릴리스 자산 교체 후 이미지 다시 빌드 (GitHub Actions: course-image)
 gh release upload course-db-v1 data/shinhan_jpm.duckdb --clobber
 gh workflow run course-image --ref course-dev

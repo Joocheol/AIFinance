@@ -42,7 +42,7 @@ AOAI_DEPLOYMENT = os.getenv("AOAI_DEPLOYMENT", "emb3s")
 
 INSTRUCTIONS = """\
 JP Morgan 구조화 노트 수업 데이터입니다. 수강생이 자신의 Azure PostgreSQL 에 직접 만든 DB 입니다.
-- products: 예정 발행일 2025-10-01~2026-09-30 상품 10,410개 (상품 1개 = 1행)
+- products: 예정 발행일 2025-10-01~2026-09-30 상품 10,542개 (상품 1개 = 1행)
 - filings / chunks: 수강생이 적재한 공시 원문과 그 청크 (키워드 색인 + 벡터 색인)
 
 도구 선택:

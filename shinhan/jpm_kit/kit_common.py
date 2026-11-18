@@ -92,12 +92,13 @@ MAX_CHARS = 1200  # 청크 최대 길이(문자). 실험 B에서 바꿔 봅니�
 
 
 def paragraphs(text: str) -> list[str]:
-    """문단 단위로 나눈다. 줄바꿈이 거의 없는 한 줄짜리 정규화 텍스트는 문장 단위로 나눈다."""
+    """한 줄 = 한 단위로 나눈다. 텍스트 v2는 문단 하나, 표의 행 하나('항목 | 값')가 각각 한 줄이다.
+    (줄바꿈이 거의 없는 예전 한 줄짜리 텍스트가 들어오면 문장 단위로 나눈다.)"""
     if text.count("\n") < 5 and len(text) > 5000:
         units = re.split(r"(?<=[.;])\s+(?=[A-Z●•“\"(])", re.sub(r"\s+", " ", text))
         return [u.strip() for u in units if len(u.strip()) >= 20]
-    paras = [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n\s*\n", text)]
-    return [p for p in paras if len(p) >= 40]
+    lines = [re.sub(r"\s+", " ", ln).strip() for ln in text.splitlines()]
+    return [ln for ln in lines if len(re.sub(r"\W", "", ln)) >= 2]  # 'PS-3'처럼 의미 없는 줄도 pack 이 이어 붙인다
 
 
 def _key(p: str) -> str:

@@ -30,7 +30,7 @@ MAX_CELL = 160  # 표의 긴 문자열은 잘라서 보여 준다
 RATE_LIMIT_PER_MIN = int(os.getenv("RATE_LIMIT_PER_MIN", "120"))
 
 INSTRUCTIONS = """\
-JP Morgan 구조화 노트 수업 데이터입니다 (SEC EDGAR 424B2, 예정 발행일 2025-10-01~2026-09-30, 상품 10,410개).
+JP Morgan 구조화 노트 수업 데이터입니다 (SEC EDGAR 424B2, 예정 발행일 2025-10-01~2026-09-30, 상품 10,542개).
 신한은행 FE/RM 수업 Excel 과 같은 데이터·같은 분모입니다.
 
 도구 선택:

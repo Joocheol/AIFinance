@@ -18,3 +18,8 @@ scratch/
 
 # 참가자 배포용 경량 CSV는 저장소에 포함
 !shinhan/data/
+
+# 수업 전 공개 금지: 퀴즈 문제·정답, 제출용 PDF (shinhan_v3)
+shinhan_v3/제출_*/
+shinhan_v3/퀴즈_*
+!shinhan_v3/kit/data/

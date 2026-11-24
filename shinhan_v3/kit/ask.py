@@ -50,7 +50,7 @@ def main() -> None:
         res["키워드"] = run(cur, KW_SQL.format(acc=acc), p, a.sql)
     if a.mode in ("all", "vector", "hybrid"):
         p["v"] = kit_db.vec(kit_db.Embedder()([a.query])[0])
-        cur.execute("set hnsw.ef_search = 100")
+        cur.execute("set hnsw.ef_search = 400")  # 후보를 넉넉히: 100이면 6만 청크에서 진짜 1위를 놓친 적이 있다 (리허설)
         res["벡터"] = run(cur, VEC_SQL.format(acc=acc), p, a.sql)
     if a.mode in ("all", "hybrid"):
         score = {}

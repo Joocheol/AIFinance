@@ -22,6 +22,12 @@ az cognitiveservices account deployment create -g jpm-course -n jpm-aoai-<이니
   --deployment-name emb3s --model-name text-embedding-3-small --model-version 1 --model-format OpenAI \
   --sku-name GlobalStandard --sku-capacity 1000
 ```
+> **`InsufficientQuota` 오류가 나면**: 무료 계정은 Azure OpenAI를 **하나만** 가질 수 있고, 지운 계정도 48시간 동안 "삭제 대기"로 남아 그 자리를 차지합니다(예: 연습으로 만들었다 지운 계정). 휴지통을 확인하고 완전히 지운 뒤 위 명령을 다시 실행합니다.
+> ```bash
+> az cognitiveservices account list-deleted -o table
+> az cognitiveservices account purge -l japaneast -g <그 계정의 리소스 그룹> -n <그 계정 이름>
+> ```
+
 `.env`에 `AOAI_ENDPOINT=https://jpm-aoai-<이니셜>-<숫자>.openai.azure.com/` 와 `AOAI_KEY`(포털 → 이 리소스 → **키 및 엔드포인트** → 키 1)를 **직접** 적습니다.
 
 ```
@@ -168,6 +174,8 @@ uv run jpm_kit/ask.py "지수에서 매일 빠지는 비용은 얼마인가" --s
 
 **D-2. SQL만으로 "이 문단과 비슷한 문단"** (VS Code 쿼리 창: 질문을 벡터로 바꿀 필요 없이 이미 있는 청크의 벡터를 씀)
 ```sql
+-- 벡터 색인은 근사 검색: 후보를 넉넉히 보게 한다 (기본값 40이면 진짜 가까운 문단을 놓칠 수 있음)
+set hnsw.ef_search = 400;
 -- 먼저 기준 청크 하나를 고른다 (예: D-1에서 찾은 chunk_id)
 select c.accession, c.chunk_id, round((1 - (c.emb <=> b.emb))::numeric, 3) as 유사도, left(c.body, 150)
 from chunks c, (select emb from chunks where chunk_id = <기준 chunk_id>) b

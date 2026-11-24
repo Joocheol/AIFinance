@@ -93,7 +93,8 @@ def check_one(raw: bytes) -> tuple[dict, str]:
                 pre = out[max(0, m.start() - 12):m.start() + 1]
                 if re.search(rf"{M} \d{{0,2}}$", pre) and re.match(r"\d, \d{4}", out[m.start():m.start() + 7]):
                     continue  # 'October 16, 2025' 의 '6, 2' 는 정상 날짜
-                if _collapse(out[max(0, m.start() - 8):m.end() + 8]) in ref_c:
+                ctx = re.sub(r"([●•▪◦■]) ", r"\1", out[max(0, m.start() - 8):m.end() + 8])  # 글머리표 뒤 공백은 변환기가 넣은 것
+                if _collapse(ctx) in ref_c:
                     continue  # 원문에도 똑같이 있다
             res["c2"].append((label, out[max(0, m.start() - 50):m.end() + 30]))
     return res, out
@@ -224,7 +225,7 @@ def main() -> None:
     ap.add_argument("cmd", choices=["check", "build"])
     ap.add_argument("--work", type=Path, default=REPO / "data" / "text_v2")
     a = ap.parse_args()
-    (cmd_check if a.cmd == "check" else cmd_build)(a.work)
+    (cmd_check if a.cmd == "check" else cmd_build)(a.work.resolve())  # 상대 경로면 원문 링크가 깨진다
 
 
 if __name__ == "__main__":

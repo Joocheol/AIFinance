@@ -66,6 +66,9 @@ def _br_inside_phrase(br: Tag) -> bool:
     return bool(re.search(CONT_END + "|" + MONTHS + "$|\\d$", before) or re.match(r"[a-z0-9%]", after))
 
 
+DOM_WIDE_PX = 60.0  # 이보다 넓은 빈 상자 = 다른 항목 사이의 빈칸 (보통 글자 크기 8~12pt의 5배 이상)
+
+
 def dom_to_text(raw: str) -> str:
     soup = BeautifulSoup(raw, "lxml")
     for tag in soup(["script", "style", "head"]):
@@ -76,6 +79,14 @@ def dom_to_text(raw: str) -> str:
             continue
         if s.find_parent("pre") is None and re.search(r"[\r\n\t]", s):
             s.replace_with(NavigableString(re.sub(r"[\r\n\t]+", " ", str(s))))
+    # 폭을 지정한 빈 상자(display:inline-block; width:400pt)는 화면에서 넓은 빈칸이다: 좌우로 떨어진 항목 사이
+    for el in soup.find_all(style=re.compile(r"inline-block", re.I)):
+        if el.parent is None or el.get_text().strip():
+            continue
+        m = re.search(r"(?<![-\w])width\s*:\s*([\d.]+)\s*(pt|px)", el.get("style", ""), re.I)
+        if m and float(m.group(1)) * (4 / 3 if m.group(2).lower() == "pt" else 1) >= DOM_WIDE_PX:
+            # 표 칸 안의 빈 상자는 칸 안 여백일 뿐이다 (칸 구분은 표가 이미 한다)
+            el.replace_with(NavigableString(" " if el.find_parent(["td", "th"]) else " \x00 "))  # 칸 표시 (줄 끝이면 지움)
     for tr in soup.find_all("tr"):
         if tr.parent is None:
             continue
@@ -94,7 +105,8 @@ def dom_to_text(raw: str) -> str:
     for tag in soup.find_all(BLOCK_TAGS):
         tag.insert_before("\n")
         tag.insert_after("\n")
-    lines = (_squash(line) for line in soup.get_text("").splitlines())  # 엔티티는 BeautifulSoup가 이미 풀었다
+    lines = (re.sub(r"(?: ?\x00 ?)+", " | ", _squash(line).strip("\x00 "))  # 엔티티는 BeautifulSoup가 이미 풀었다
+             for line in soup.get_text("").splitlines())
     text = "\n".join(lines)
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
@@ -160,17 +172,33 @@ def _main_font_size(div: Tag, css: dict[str, str]) -> float:
     return max(weight, key=weight.get) if weight else 1.0
 
 
+WIDE_GAP = 5.0  # 한 줄 안에서 글자 크기의 이 배수보다 넓은 빈칸 = 서로 다른 항목(머리말 좌우, 흐름도 칸)
+
+
 def _line_text(div: Tag, css: dict[str, str], fs: float) -> str:
-    """한 줄(div.t) 글자. 빈 간격 조각(class '_')은 폭이 글자 크기의 15%를 넘을 때만 공백으로 본다."""
-    out = []
-    for node in div.descendants:
-        if type(node) is NavigableString:  # 주석은 화면 글자가 아니다
-            out.append(str(node))
-        elif isinstance(node, Tag) and "_" in node.get("class", []) and not node.get_text():
-            w = _prop(node, "margin-left", css) or _prop(node, "width", css) or 0.0
-            if abs(w) > 0.15 * fs:
-                out.append(" ")
-    return _squash("".join(out))
+    """한 줄(div.t) 글자. 빈 간격 조각(class '_')은 폭으로 판단한다:
+    글자 크기의 15% 이하 = 붙임(글자 간격 보정), 그보다 넓으면 공백, WIDE_GAP배보다 넓으면 ' | '(다른 항목)."""
+    out: list[str] = []
+
+    def walk(el: Tag) -> None:
+        for node in el.children:
+            if type(node) is NavigableString:  # 주석은 화면 글자가 아니다
+                out.append(str(node))
+            elif isinstance(node, Tag):
+                if "_" in node.get("class", []) and not node.get_text().strip():
+                    w = abs(_prop(node, "margin-left", css) or _prop(node, "width", css) or 0.0)
+                    if w > WIDE_GAP * fs:
+                        out.append(" \x00 ")  # 칸 표시 (줄 앞·뒤의 빈칸이면 아래에서 지운다)
+                    elif w > 0.15 * fs:
+                        out.append(" ")
+                    elif node.get_text():
+                        out.append(node.get_text())  # 폭이 작아도 안에 든 공백 글자는 그대로
+                else:
+                    walk(node)
+
+    walk(div)
+    text = _squash("".join(out)).strip("\x00 ")
+    return re.sub(r"(?: ?\x00 ?)+", " | ", text)
 
 
 def pdf_to_text(raw: str) -> str:
@@ -267,6 +295,12 @@ def _join_split_dates(text: str) -> str:
     return text
 
 
+def _space_after_bullets(text: str) -> str:
+    """글머리 기호(●•▪◦■)는 화면에서 기호 칸의 폭만큼 떨어져 있다: 바로 붙은 글자 앞에 공백을 넣는다 (글자는 그대로)."""
+    return re.sub(r"([●•▪◦■])(?=[^\s|●•▪◦■])", r"\1 ", text)
+
+
 def convert(raw: bytes | str) -> str:
     s = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw
-    return _join_split_dates(pdf_to_text(s) if is_pdf_layout(s) else dom_to_text(s))
+    text = pdf_to_text(s) if is_pdf_layout(s) else dom_to_text(s)
+    return _join_split_dates(_space_after_bullets(text))

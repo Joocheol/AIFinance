@@ -52,10 +52,13 @@ az postgres flexible-server parameter set -g jpm-course -s jpm-pg-demo -n azure.
    - 서버 이름: `jpm-pg-<내 영문 이니셜>-<숫자 2자리>` (예: `jpm-pg-hgd-07`). 이미 있으면 숫자를 바꿉니다.
    - 지역: **Japan East** · PostgreSQL 버전: **16**
    - 워크로드 유형: **개발** → **컴퓨팅 + 스토리지 구성**: 버스트 가능(Burstable), **Standard_B1ms**, 저장소 **32GiB**, 저장소 자동 증가 **끔**
+     - **주의**: 기본값이 **B2s**(2 vCores, 4 GiB)로 잡힙니다. **서버 구성(Configure server)**을 눌러 **Standard_B1ms (1 vCore, 2 GiB)**로 바꿉니다. 무료 계정의 무료 대상은 B1ms뿐입니다.
    - 고가용성: 끔
    - 인증: **PostgreSQL 인증만**, 관리자 이름 `jpmadmin`, 비밀번호 12자 이상(종이에 적기)
-2. **네트워킹**: 공용 액세스 → **현재 클라이언트 IP 주소 추가**를 체크
-3. **검토 + 만들기** → 화면에 나온 **예상 비용**을 확인하고 → **만들기**. 약 6분 걸립니다. 기다리는 동안 강사의 C 시연을 봅니다.
+2. **네트워킹** → 방화벽 규칙: **+ 현재 클라이언트 IP 주소 추가(Add current client IP address)** 를 한 번 누릅니다. 아래 표에 내 IP 한 줄이 생기면 됩니다.
+   - 바로 옆의 **+ 0.0.0.0 - 255.255.255.255 추가**는 누르지 않습니다(전 세계에 열림).
+   - **Azure 서비스의 공용 액세스 허용**은 체크하지 않습니다.
+3. **검토 + 만들기** → 화면에 나온 **예상 비용**을 확인하고(B1ms면 정가 월 $23.40, 그 아래에 무료 750시간·32GB 표시) → **만들기**. 약 6분 걸립니다. 기다리는 동안 강사의 C 시연을 봅니다.
 4. 다 만들어지면 → 리소스로 이동 → 왼쪽 **서버 매개변수** → 검색 `azure.extensions` → **VECTOR** 체크 → 저장
 
 | 확인 | 내 값 |
@@ -92,7 +95,7 @@ Burstable Standard_B1ms, 저장소 32GB 자동 증가 끔, PostgreSQL 16, 관리
 
 ## D. 내 DB에 10월 텍스트 넣기
 
-1. `jpm_kit/.env.example`을 복사해 `.env`로 만들고, `PGHOST`(B의 주소)와 `PGPASSWORD`를 **직접** 적습니다. Claude에게 보여 주지 않습니다.
+1. 사전 준비 때 만든 `jpm_kit/.env`를 **열어서** `PGHOST`(B의 주소)와 `PGPASSWORD` 두 줄을 **직접** 채웁니다. `.env.example`을 다시 복사하면 `SEC_CONTACT`가 지워지니 복사하지 않습니다. Claude에게 보여 주지 않습니다.
 2. Claude Code 패널:
 ```
 jpm_kit/load_text.py 가 무엇을 하는지 설명해줘(.env 는 열지 마). 특히 텍스트를 어떤 단위로 잘라 chunks 에 넣는지,

@@ -11,12 +11,19 @@ import os
 import sys
 from pathlib import Path
 
+# Windows에서 Claude Code가 실행하면 출력이 cp949가 되어 한글이 깨지거나 일부 기호에서 멈춘다 → UTF-8로 고정
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 KIT = Path(__file__).resolve().parent
 
 
 def load_env() -> None:
     path = KIT / ".env"
     if not path.exists():
+        if (KIT / ".env.txt").exists():
+            sys.exit("jpm_kit/.env.txt 가 있습니다. 메모장이 .txt 를 붙여 저장한 것입니다. VS Code 탐색기에서 이름을 .env 로 바꾸세요.")
         sys.exit("jpm_kit/.env 파일이 없습니다. .env.example 을 복사해 .env 로 만들고 값을 채우세요.")
     try:
         raw = path.read_text(encoding="utf-8-sig")

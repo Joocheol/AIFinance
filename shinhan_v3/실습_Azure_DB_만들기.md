@@ -10,7 +10,7 @@
 | D | 내 DB에 10월 텍스트 넣고 VS Code에서 들여다보기 | 나 | 10분 |
 | E | 공용 상품 DB 읽고 내 공시와 이어 보기 | 나 | 5분 |
 
-**도구** (사전 준비에서 설치): VS Code, VS Code의 **Claude Code** 확장, **Azure CLI**(`az`), VS Code의 **PostgreSQL** 확장(Microsoft). VS Code 터미널에서 `az login`을 한 번 해 둡니다.
+**도구** (사전 준비에서 설치): VS Code, VS Code의 **Claude Code** 확장, **Azure CLI**(`az`), VS Code의 **PostgreSQL** 확장(Microsoft, `ms-ossdata.vscode-pgsql`). VS Code 터미널에서 `az login`을 한 번 해 둡니다.
 
 ---
 
@@ -76,10 +76,13 @@ az postgres flexible-server parameter set -g jpm-course -s jpm-pg-demo -n azure.
 Azure CLI 로 PostgreSQL 유연한 서버를 하나 만드는 스크립트 make_pg2.sh 를 써줘. 실행하지는 마.
 조건: 리소스 그룹 jpm-course, 지역 japaneast, 서버 이름 jpm-pg-demo-c,
 Burstable Standard_B1ms, 저장소 32GB 자동 증가 끔, PostgreSQL 16, 관리자 jpmadmin,
-방화벽은 이 노트북의 공인 IP만, azure.extensions 에 VECTOR 허용.
+방화벽은 이 노트북의 공인 IP만(서버를 만들 때 --public-access 에 그 IP를 넣어 한 번에), azure.extensions 에 VECTOR 허용.
 비밀번호는 스크립트가 실행될 때 터미널에서 직접 입력하게 하고(화면에 안 보이게), 어디에도 저장하지 마.
 명령마다 무엇을 하는지 한 줄 주석을 달아줘.
+az 옵션 이름은 기억으로 쓰지 말고, 쓰는 명령마다 이 노트북에서 `az <명령> --help` 를 실행해 확인한 뒤 써. --output 옵션은 붙이지 마.
 ```
+
+> 괄호 안의 방화벽 지시와 마지막 줄이 없으면 Claude가 서버만 만들고 방화벽 단계에서 멈추는 일이 잦습니다. 옛 문법(`firewall-rule create -n <서버>`)을 쓰거나, `--public-access None`으로 만든 뒤 규칙을 따로 추가하려 하기 때문입니다. `None`은 도움말 설명과 달리 공개 접근이 꺼진 서버를 만들어 규칙을 추가할 수 없습니다(az 2.92). `--output table`을 서버 만들기에 붙이면 서버는 생기지만 "Table output unavailable" 오류로 스크립트가 멈춰 VECTOR가 빠집니다.
 
 시연 순서
 1. Claude가 쓴 스크립트를 A의 명령과 한 줄씩 대조합니다. 다른 옵션이 있으면 Claude에게 왜 다른지 묻습니다.

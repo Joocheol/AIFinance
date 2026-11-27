@@ -25,7 +25,7 @@ a.out.mkdir(parents=True, exist_ok=True)
 files = sorted(p for p in KIT.rglob("*") if p.is_file()
                and not (set(p.relative_to(KIT).parts[:-1]) & SKIP_DIRS) and p.name not in SKIP_FILES)
 need = {"README.md", "CLAUDE.md", ".env.example", "check_oct.py", "htmltext.py", "to_text.py", "kit_db.py",
-        "load_text.py", "shared_products.py", "embed.py", "emb_1_words.py", "emb_2_sentences.py", "ask.py"}
+        "load_text.py", "shared_products.py", "embed.py", "emb_1_words.py", "emb_2_sentences.py", "ask.py", "similar.py"}
 missing = need - {p.name for p in files}
 assert not missing, f"빠진 파일: {missing}"
 assert (KIT / "data" / "oct_reference.csv").exists(), "data/oct_reference.csv 가 없습니다 (make_oct_reference.py)"

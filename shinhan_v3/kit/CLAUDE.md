@@ -27,6 +27,7 @@
 ## DB
 - 내 Azure PostgreSQL: `filings`(10월 공시 원문), `chunks`(검색 단위, `tsv`=키워드 색인, `emb`=벡터).
 - 공용 상품 DB(읽기 전용, `.env`의 `SHARED_…`): `products`(강사가 10개월 공시로 만든 상품 표).
+- 공시끼리 비교(특이한 공시, 새 상품 설명과 닮은 공시)는 `uv run jpm_kit/similar.py`(`--outliers N`, `--text "영어 설명"`, `--like <accession>`)를 먼저 쓴다. 공시 벡터는 `jpm_kit/out/doc_vectors.npz`에 저장된다.
 - DB 연결은 `jpm_kit/kit_db.py`의 `connect()`(내 DB) / `connect("SHARED")`(공용)를 쓴다. `body`·`emb` 칸 전체를 출력하지 않는다(너무 길다).
 - 표를 지우거나 바꾸기 전에는 사용자에게 먼저 묻는다.
 - 숫자를 말할 때는 분모(공시 수 / 상품 수 / 값이 있는 상품 수)를 밝힌다. 빈칸은 0이 아니라 결측이다.

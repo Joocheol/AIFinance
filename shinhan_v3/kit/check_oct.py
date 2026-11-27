@@ -15,6 +15,11 @@ import re
 import sys
 from pathlib import Path
 
+# Windows에서 Claude Code가 실행하면 출력이 cp949가 되어 한글이 깨지거나 일부 기호에서 멈춘다 → UTF-8로 고정
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 KIT = Path(__file__).resolve().parent
 MINE = KIT / "sec_oct"
 REF = KIT / "data" / "oct_reference.csv"

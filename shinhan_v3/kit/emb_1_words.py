@@ -16,10 +16,16 @@ AI 호출 없음. 계산은 모두 이 노트북에서 numpy 로.
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 from urllib.request import urlopen
 
 import numpy as np
+
+# Windows에서 Claude Code가 실행하면 출력이 cp949가 되어 한글이 깨지거나 일부 기호에서 멈춘다 → UTF-8로 고정
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
 
 OUT = Path(__file__).resolve().parent / "out"
 BASE = ("https://raw.githubusercontent.com/tensorflow/"

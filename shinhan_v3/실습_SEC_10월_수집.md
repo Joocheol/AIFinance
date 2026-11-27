@@ -5,7 +5,7 @@
 
 | 할 일 | 어디서 | 시간 |
 |---|---|---|
-| 1. 연락처가 `.env`에 있는지 확인 (사전 준비 9) | 메모장 | 1분 |
+| 1. 연락처가 `.env`에 있는지 확인 (사전 준비 9) | VS Code 탐색기 | 1분 |
 | 2. Claude에게 코드 만들게 하기 | Claude 패널 | 10분 |
 | 3. 코드를 읽고 요구사항 확인 | Claude 패널 | 10분 |
 | 4. 목록만 받기, 원문 3건만 받기 (시험) | Claude 패널 | 5분 |
@@ -20,13 +20,13 @@
 
 SEC는 자동으로 받는 프로그램에 **연락처(이름과 이메일)** 를 밝히라고 요구합니다. 연락처가 없으면 403으로 거부합니다.
 
-사전 준비에서 `문서/jpm-class/jpm_kit/.env`에 이 한 줄을 적어 왔습니다. 메모장으로 열어 있는지만 확인합니다(없으면 지금 적습니다).
+사전 준비에서 `문서/jpm-class/jpm_kit/.env`에 이 한 줄을 적어 왔습니다. VS Code 탐색기에서 열어 있는지만 확인하고 탭을 닫습니다(없으면 지금 적습니다). 탐색기에 `.env.txt`로 보이면 이름을 `.env`로 바꿉니다.
 
 ```
-SEC_CONTACT=홍길동 gildong@example.com
+SEC_CONTACT=Gildong Hong gildong@example.com
 ```
 
-따옴표 없이 `이름 빈칸 이메일` 그대로 적습니다.
+따옴표 없이 `영문 이름 빈칸 이메일` 그대로 적습니다. **한글 이름은 안 됩니다.** 요청 머리글(User-Agent)에는 영문·숫자·기호만 쓸 수 있어 `UnicodeEncodeError: 'latin-1' codec can't encode` 오류로 멈춥니다.
 
 이메일은 **채팅에 쓰지 않습니다.** 코드가 `.env`를 직접 읽습니다. Claude는 `.env`를 열지 않습니다(키트의 `CLAUDE.md` 규칙).
 
@@ -44,6 +44,7 @@ jpm_kit/sec_oct.py 를 만들어줘. 아직 실행하지 마.
    같은 공시가 두 회사에 함께 등록되므로 accessionNumber 로 합친다.
 2. 원문 주소: https://www.sec.gov/Archives/edgar/data/19617/<accessionNumber에서 '-'를 뺀 것>/<primaryDocument>
 3. 연락처: jpm_kit/.env 의 SEC_CONTACT 값을 User-Agent 로 쓴다. 값을 화면에 출력하거나 다른 파일에 쓰지 않는다.
+   값이 비었거나 영문·숫자·기호(ASCII) 밖의 글자가 있으면 요청을 보내기 전에 멈추고 "SEC_CONTACT를 영문 이름과 이메일로 적으세요"라고만 출력한다.
    너(Claude)는 .env 를 열지 않는다. 코드가 실행될 때 읽는다.
 4. 속도: 요청은 한 번에 하나씩, 초당 2건 이하.
 5. 403 또는 429 를 받으면 즉시 전체를 멈추고 이유를 출력한다. 다른 방법으로 다시 시도하지 않는다.

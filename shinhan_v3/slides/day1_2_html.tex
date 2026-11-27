@@ -1,0 +1,315 @@
+% 1일차 · 실습 2. HTML을 텍스트로 바꾸기 (원본: 실습_HTML_텍스트_변환.md)
+\section{실습 2. HTML을 텍스트로 바꾸기}
+
+% ─────────────────────────────────────────────
+\begin{frame}{변환기가 하는 일 — 오늘의 목표}
+\begin{columns}[T]
+\begin{column}{0.46\textwidth}
+\begin{block}{목표}
+받은 공시 원문(HTML)을 텍스트로 바꾸고, 변환기가 \textbf{무엇을 바꾸고 무엇을 바꾸지 않는지} 이해합니다.
+\end{block}
+\begin{alertblock}{고치지 않고 읽고 확인}
+변환기 \texttt{jpm\_kit/htmltext.py}는 강사가 만들어 2026년 1–10월 공시 \num{19,285건}으로 검사한 것을 그대로 씁니다.
+\end{alertblock}
+\end{column}
+\begin{column}{0.50\textwidth}
+\small
+\begin{tabularx}{\textwidth}{@{}X r@{}}
+\toprule
+\textbf{할 일} & \textbf{시간} \\
+\midrule
+1. 왜 바꾸나, HTML 두 종류 \src{(설명)} & 5분 \\
+2. 변환기가 하는 일 \src{(설명)} & 10분 \\
+3. 내 10월 원문 전체를 바꾸고 검사 & 5분 \\
+4. 두 종류를 하나씩 원문 화면과 나란히 보기 & 10분 \\
+5. Claude에게 변환기 코드 한 부분 설명 듣기 & 5분 \\
+\bottomrule
+\end{tabularx}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{왜 텍스트로 바꾸나}
+다음 단계들(규칙으로 값 뽑기, 상품 표, 검색, AI에게 읽히기)은 모두 \textbf{글자}를 다룹니다.\\
+HTML에는 글자 말고도 \alert{태그, 글꼴, 위치 정보}가 섞여 있습니다.
+\vspace{0.8em}
+
+\small
+\begin{tabularx}{\textwidth}{@{}l X X@{}}
+\toprule
+ & \textbf{HTML} & \textbf{텍스트} \\
+\midrule
+크기 (중앙값) & 일반 HTML \num{119KB}, PDF 변환형 \num{743KB} & \textcolor{accent}{\textbf{50–60KB}} \\
+\texttt{Pricing Date: October 16, 2025} & 표의 두 칸에 나뉘어 태그 사이에 흩어짐 & \texttt{Pricing Date: \textbar{} October 16, 2025} 한 줄 \\
+\texttt{Linked to} & \texttt{Linke\textless{}font …\textgreater{}d to \textless{}/font\textgreater{}}\newline\src{(낱말 가운데 태그)} & \texttt{Linked to} \\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{공시 HTML은 두 종류입니다}
+\small 원본이 그렇게 생겼습니다. 공시 대행사가 어떻게 만들었느냐에 따라 갈립니다.
+\vspace{0.4em}
+
+\centering
+\begin{tikzpicture}
+% ① 일반 HTML
+\node[card=teal,minimum height=4.8cm,text width=6.2cm,anchor=north] (a) at (0,0) {};
+\node[anchor=north west,font=\bfseries] at ([xshift=4pt,yshift=-4pt]a.north west) {① 일반 HTML \textcolor{muted}{\small(문서 구조가 있음)}};
+\node[anchor=north west,font=\scriptsize,text width=6cm] at ([xshift=4pt,yshift=-22pt]a.north west) {처음부터 HTML로 작성. 문단은 \texttt{<p>}, 표는 \texttt{<table><tr><td>}.};
+\node[draw=teal,fill=white,rounded corners=2pt,minimum width=5.6cm,minimum height=0.45cm,font=\scriptsize] (p1) at ([yshift=-2.05cm]a.north) {\texttt{<p>} 문단};
+\node[draw=teal,fill=white,rounded corners=2pt,minimum width=5.6cm,minimum height=0.8cm,anchor=north] (t1) at ([yshift=-0.15cm]p1.south) {};
+\node[draw=teal,fill=teal!15,minimum width=2.6cm,minimum height=0.5cm,font=\tiny,anchor=west] at ([xshift=0.15cm]t1.west) {\texttt{<td>}Pricing Date:};
+\node[draw=teal,fill=teal!15,minimum width=2.6cm,minimum height=0.5cm,font=\tiny,anchor=east] at ([xshift=-0.15cm]t1.east) {\texttt{<td>}October 16, 2025};
+\node[font=\tiny,text=teal,anchor=south east] at ([yshift=-2pt]t1.north east) {\texttt{<tr>} 한 행};
+\node[draw=teal,fill=white,rounded corners=2pt,minimum width=5.6cm,minimum height=0.45cm,font=\scriptsize,anchor=north] at ([yshift=-0.15cm]t1.south) {\texttt{<p>} 문단};
+\node[anchor=south,font=\scriptsize,text=teal] at ([yshift=4pt]a.south) {태그가 \textbf{문단·표·칸}을 알려 준다};
+% ② PDF 변환형
+\node[card=accent,minimum height=4.8cm,text width=6.2cm,anchor=north] (b) at (7.2,0) {};
+\node[anchor=north west,font=\bfseries] at ([xshift=4pt,yshift=-4pt]b.north west) {② PDF를 HTML로 바꾼 형식};
+\node[anchor=north west,font=\scriptsize,text width=6cm] at ([xshift=4pt,yshift=-22pt]b.north west) {Word·조판 프로그램으로 PDF를 만든 뒤 변환 도구로 HTML로. 문단·표 태그가 없음.};
+\begin{scope}[shift={([yshift=-2.0cm]b.north)}]
+\foreach \y/\w/\x in {0/4.6/-0.3, -0.45/3.8/-0.7, -0.9/4.4/-0.4, -1.35/1.6/-1.8, -1.35/1.4/1.2}{
+  \node[draw=accent,fill=accent!15,minimum width=\w cm,minimum height=0.3cm,inner sep=0pt] at (\x,\y) {};
+}
+\draw[muted,densely dotted] (-2.75,0.25) -- (-2.75,-1.6);
+\node[font=\tiny,text=muted,anchor=east] at (-2.75,0) {\texttt{bottom}};
+\node[font=\tiny,text=muted,anchor=north] at (-0.3,-1.55) {\texttt{left:935.99px; bottom:12842.0px}};
+\end{scope}
+\node[anchor=south,font=\scriptsize,text=accent] at ([yshift=4pt]b.south) {화면의 \textbf{한 줄 = 상자 하나}, \textbf{좌표}로 놓임};
+\end{tikzpicture}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{두 종류의 원문 — 실제 모습}
+\begin{block}{① 일반 HTML}
+\begin{Verbatim}
+<tr><td>Pricing Date:</td><td>October 16, 2025</td></tr>
+\end{Verbatim}
+\end{block}
+\begin{block}{② PDF를 HTML로 바꾼 형식}
+\begin{Verbatim}
+<div class="t …" style="left:935.99px; bottom:12842.0px; font-size:379.2px">Uncapped Digital Barrier Notes Linke<font style="letter-spacing:0.364px">d to </font>the Lesser </div>
+<div class="t …" style="left:935.99px; bottom:12405.2px; font-size:379.2px">Performing of …</div>
+\end{Verbatim}
+\end{block}
+\small 브라우저로 열면 PDF와 똑같이 보이지만, \alert{``이 글자들이 한 문장''이라는 정보가 파일에 없습니다}. 좌표를 보고 다시 맞춰야 합니다.
+
+\vspace{0.3em}
+\src{2026년 1–10월 공시 19,285건에서 ②는 \textbf{5,896건(31\%)}이었고, 모두 대행사 한 곳(접수번호 앞자리 \texttt{0001213900})에서 나왔습니다.}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{원칙은 하나}
+\begin{center}
+\large \textbf{글자는 하나도 바꾸지 않고, 글자 사이에 무엇을 넣을지만 정한다}
+\end{center}
+\vspace{0.2em}
+\centering
+\begin{tikzpicture}
+\node[box=ink,minimum width=3.2cm] (g) at (5.4,1.5) {글자 \quad ? \quad 글자};
+\node[box=teal,minimum width=2.6cm] (a) at (0,0) {붙임};
+\node[box=teal,minimum width=2.6cm] (b) at (3.6,0) {공백};
+\node[box=blue,minimum width=2.6cm] (c) at (7.2,0) {줄바꿈};
+\node[box=accent,minimum width=2.6cm] (d) at (10.8,0) {칸 구분 \texttt{\textvisiblespace|\textvisiblespace}};
+\foreach \n in {a,b,c,d} \draw[arr] (g.south) -- (\n.north);
+\end{tikzpicture}
+\vspace{0.6em}
+
+\raggedright
+\begin{alertblock}{태그를 지우는 것만으로는 이 결정을 할 수 없습니다}
+태그가 있던 자리에 공백을 넣으면 \texttt{Linke d to}가 되고,
+아무것도 안 넣으면 \texttt{Pricing Date:October 16}이 됩니다.
+\end{alertblock}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{① 일반 HTML \texttt{(dom\_to\_text)} — 1/2}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{5.0cm} >{\raggedright\arraybackslash}p{3.0cm}@{}}
+\toprule
+\textbf{규칙} & \textbf{원문} & \textbf{결과} \\
+\midrule
+문단·목록 같은 덩어리(\texttt{<p>}, \texttt{<div>}, \texttt{<li>} …)는 줄을 바꾼다 & \texttt{<p>…notes.</p><p>The notes…</p>} & 두 줄 \\
+표의 한 행은 한 줄, 칸 사이는 \texttt{\textvisiblespace|\textvisiblespace} & \texttt{<tr><td>CUSIP:</td><td>48136HP69</td></tr>} & \texttt{CUSIP: \textbar{} 48136HP69} \\
+글자 가운데의 태그는 그냥 붙인다 & \texttt{Linke<font>d to</font>} & \texttt{Linked to} \\
+\texttt{<br>}(줄바꿈)이 문장·날짜 한가운데면 공백, 아니면 줄바꿈 & \texttt{June 29,<br>2028} & \texttt{June 29, 2028} \\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+\begin{frame}{① 일반 HTML \texttt{(dom\_to\_text)} — 2/2}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{5.0cm} >{\raggedright\arraybackslash}p{3.0cm}@{}}
+\toprule
+\textbf{규칙} & \textbf{원문} & \textbf{결과} \\
+\midrule
+HTML 소스 안의 줄바꿈은 화면에서 공백일 뿐 & \texttt{the\textbackslash{}nnotes} & \texttt{the notes} \\
+화면에 안 보이는 것은 뺀다 & \texttt{<script>}, \texttt{<style>}, \texttt{<!-{}- 주석 -{}->} & (없음) \\
+폭을 지정한 넓은 빈 상자는 다른 항목 사이의 빈칸 & \texttt{Investments —<font style="width:400pt"> </font>PS-1} & \texttt{Investments — \textbar{} PS-1} \\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{② PDF를 HTML로 바꾼 형식 \texttt{(pdf\_to\_text)} — 1/2}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.4cm}@{}}
+\toprule
+\textbf{규칙} & \textbf{판단 근거} & \textbf{결과 예} \\
+\midrule
+높이(\texttt{bottom})가 같은 상자들은 한 행 & 좌표 & 표의 한 행 \\
+같은 행에서 멀리 떨어진 상자는 다른 칸 & 간격 > 글자 크기의 \num{1.5배} & \texttt{Per note \textbar{} \$1,000} \\
+상자 안의 빈 간격 조각(\texttt{\_})은 폭으로 판단 & 글자 크기의 \num{15\%} 이하 = 붙임, 그보다 넓으면 공백, \num{5배} 넘으면 칸 & \texttt{January , 2026 \textbar{} Registration Statement Nos.} \\
+\bottomrule
+\end{tabularx}
+\vspace{0.8em}
+
+\centering
+\begin{tikzpicture}[font=\scriptsize]
+\draw[muted,line width=0.6pt] (0,0) -- (12,0);
+\fill[teal!60] (0,-0.12) rectangle (1.8,0.12);
+\fill[blue!60] (1.8,-0.12) rectangle (4.2,0.12);
+\fill[accent!70] (4.2,-0.12) rectangle (12,0.12);
+\node[below] at (0,-0.15) {0};
+\node[below] at (1.8,-0.15) {0.15 × 글자 크기};
+\node[below] at (4.2,-0.15) {5 × 글자 크기};
+\node[above] at (0.9,0.15) {붙임};
+\node[above] at (3.0,0.15) {공백};
+\node[above] at (8.1,0.15) {칸 \texttt{\textbar{}}};
+\node[anchor=west,text=muted] at (12.1,0) {빈 조각 폭};
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}{② PDF를 HTML로 바꾼 형식 \texttt{(pdf\_to\_text)} — 2/2}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.4cm}@{}}
+\toprule
+\textbf{규칙} & \textbf{판단 근거} & \textbf{결과 예} \\
+\midrule
+작은 글씨가 살짝 위에 있으면 위첨자 & 글자 크기·높이 & \texttt{S\&P 500} + \texttt{®} → \texttt{S\&P 500®} \\
+줄 간격이 보통이고 문장이 이어지면 같은 문단 & 줄 간격, 앞 줄이 \texttt{,}·\texttt{and}·\texttt{the} 등으로 끝나거나 다음 줄이 소문자로 시작 & 화면의 세 줄 제목 → 한 줄 \\
+줄 끝 하이픈 + 소문자로 시작하는 다음 줄 & 하이픈 & \texttt{under-} + \texttt{lying} → \texttt{under-lying} \src{(하이픈은 남김)} \\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{③ 두 종류 공통, 그리고 바꾸지 \alert{않는} 것}
+\begin{columns}[T]
+\begin{column}{0.47\textwidth}
+\begin{block}{③ 두 종류 공통}
+\footnotesize
+\begin{tabularx}{0.96\linewidth}{@{}X X@{}}
+\textbf{규칙} & \textbf{결과} \\
+\midrule
+날짜 가운데의 줄바꿈은 공백으로 & \texttt{June 29,{\fontspec{Apple Symbols}⏎}2028}\newline → \texttt{June 29, 2028} \\
+글머리표({\fontspec{Apple Symbols}●•▪}) 바로 뒤에 글자가 붙으면 공백 하나 & \texttt{{\fontspec{Apple Symbols}●}The notes}\newline → \texttt{{\fontspec{Apple Symbols}●} The notes} \\
+\end{tabularx}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{alertblock}{바꾸지 않는 것}
+\small
+\begin{itemize}\setlength\itemsep{3pt}
+\item \textbf{글자 자체.} 철자, 숫자, 기호, 원문에 있는 공백\newline \src{(\texttt{5, 210.975}처럼 원문이 이상해도 그대로)}
+\item \textbf{``숫자 사이 공백 지우기'' 같은 정리.}\newline 예전 변환(v1)이 이것을 했다가 날짜를 \texttt{October 16,2025}로 망가뜨렸습니다.
+\end{itemize}
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{변환이 맞는지 어떻게 아나 \src{\normalsize 강사 검사}}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}l X >{\raggedright\arraybackslash}p{3.3cm}@{}}
+\toprule
+\textbf{검사} & \textbf{기준} & \textbf{결과} \\
+\midrule
+1. 글자 보존 & HTML 화면 글자와 변환 결과가 공백·\texttt{\textbar}를 빼면 순서까지 같다 & 19,285건 실패 \num{0} \\
+2. 숫자 온전함 & 날짜·금액·비율이 줄바꿈으로 끊기지 않고 원문에 없는 공백이 끼지 않는다 & 19,285건 실패 \num{0} \\
+3. 정답 근거 & 정답 27건의 근거 문구 261개가 한 줄 안에 그대로 있다 & \textcolor{accent}{\textbf{261/261}} \\
+브라우저 대조 & 크롬으로 그린 글자 위치의 간격과 변환 결과의 띄어쓰기를 비교 \src{(표본 29건)} & 글머리표·넓은 빈칸 문제를 찾아 고침 \\
+\bottomrule
+\end{tabularx}
+\vspace{0.3em}
+\begin{alertblock}{알려진 한계}
+기호 글꼴로 그린 글머리표는 원문 글자가 영문자라 \texttt{n If the …}처럼 남습니다.
+흐름도 안의 칸 몇 곳은 공백으로 이어집니다.
+\end{alertblock}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{내 10월 원문 바꾸기}
+\begin{columns}[T]
+\begin{column}{0.44\textwidth}
+\small Claude Code 패널 또는 VS Code 터미널:
+\begin{Verbatim}
+uv run jpm_kit/to_text.py
+\end{Verbatim}
+\vspace{0.5em}
+\src{출력에 나오는 예시 accession은 다음 단계에서 씁니다.}
+\end{column}
+\begin{column}{0.52\textwidth}
+\small
+\begin{tabularx}{\textwidth}{@{}X p{2.6cm}@{}}
+\toprule
+\textbf{확인} & \textbf{내 값} \\
+\midrule
+변환한 공시 수 & \\[6pt] \arrayrulecolor{muted!35}\midrule\arrayrulecolor{black}
+일반 HTML / PDF 변환형 & \hfil / \hfil \\[6pt] \arrayrulecolor{muted!35}\midrule\arrayrulecolor{black}
+글자 보존 검사 통과 / 실패 & \hfil / \hfil \\[6pt]
+\bottomrule
+\end{tabularx}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{두 종류를 하나씩 원문과 나란히}
+\small 위 출력의 예시 accession을 하나씩 씁니다.
+\begin{Verbatim}
+uv run jpm_kit/to_text.py --show <accession>
+\end{Verbatim}
+같은 공시를 브라우저로 엽니다: \verb|jpm_kit/sec_oct/html/<accession>.html| 더블클릭.
+
+\footnotesize\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}X p{3.6cm} p{3.6cm}@{}}
+\toprule
+ & \textbf{일반 HTML} & \textbf{PDF 변환형} \\
+\midrule
+accession & & \\[1pt] \arrayrulecolor{muted!35}\midrule\arrayrulecolor{black}
+HTML 크기 → 텍스트 크기 & & \\[1pt] \arrayrulecolor{muted!35}\midrule\arrayrulecolor{black}
+화면에서 여러 줄인 제목이 텍스트에서는? & & \\[1pt] \arrayrulecolor{muted!35}\midrule\arrayrulecolor{black}
+가격 표(Price to Public …) 한 행이 텍스트에서는? & & \\[1pt] \arrayrulecolor{muted!35}\midrule\arrayrulecolor{black}
+원문과 다르게 보이는 곳이 있으면 적기 & & \\[1pt]
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{Claude에게 변환기 한 부분 설명 듣기}
+\begin{block}{Claude Code 패널에 붙여 넣기}
+\begin{Verbatim}
+jpm_kit/htmltext.py 의 _line_text 함수와 pdf_to_text 함수가 하는 일을 설명해줘.
+특히 빈 간격 조각을 붙임/공백/칸으로 나누는 기준이 무엇이고, 그 숫자(0.15, 5.0, 1.5)를 바꾸면
+어떤 문제가 생길지 예를 들어줘. 코드는 고치지 마.
+\end{Verbatim}
+\end{block}
+\vspace{0.4em}
+\begin{alertblock}{확인}
+Claude의 설명이 이 실습지 3절의 표와 맞나요? 다르면 코드에서 해당 줄을 찾아 \textbf{누가 맞는지} 확인합니다.
+\end{alertblock}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{생각해 보기}
+\begin{enumerate}\setlength\itemsep{10pt}
+\item 태그만 지우는 변환기를 쓰면 다음 실습(규칙으로 값 뽑기)에서 무엇이 틀어질까요?
+\item 검사 1은 공백과 \texttt{|}를 빼고 비교합니다. 그래서 검사 1이 \alert{못} 잡는 오류는 어떤 것일까요?
+\item 같은 공시를 PDF로 받아 OCR로 읽으면 어떤 점이 더 나쁠까요?
+\end{enumerate}
+\end{frame}

@@ -1,0 +1,167 @@
+% AI Finance 1 — 1일차 강의 슬라이드 (Beamer, metropolis)
+% 빌드: xelatex AI_Finance_1.tex  (두 번)
+\documentclass[aspectratio=169,10pt]{beamer}
+\input{preamble}
+
+\title{SEC 공시에서 내 DB까지}
+\subtitle{AI Finance 1 — 받고, 바꾸고, 넣고, 묻는다}
+\date{2026년 11월 28일 · 대우관 415호}
+
+\begin{document}
+
+\maketitle
+
+% ─────────────────────────────────────────────
+\begin{frame}{오늘의 흐름}
+\centering
+\begin{tikzpicture}[node distance=0.55cm]
+\node[box=accent,minimum width=3.0cm,text width=2.8cm] (a) {\textbf{1. 받기}\\\scriptsize SEC 10월 공시 원문};
+\node[box=blue,minimum width=3.0cm,text width=2.8cm,right=of a] (b) {\textbf{2. 바꾸기}\\\scriptsize HTML → 텍스트};
+\node[box=teal,minimum width=3.0cm,text width=2.8cm,right=of b] (c) {\textbf{3. 넣기}\\\scriptsize 내 Azure DB};
+\node[box=ink,minimum width=3.0cm,text width=2.8cm,right=of c] (d) {\textbf{4. 묻기}\\\scriptsize SQL · 임베딩};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d);
+\end{tikzpicture}
+\vspace{0.8em}
+
+\footnotesize\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{0.92\textwidth}{@{}l r X l@{}}
+\toprule
+\textbf{시간} & \textbf{분} & \textbf{활동} & \textbf{기다리는 동안} \\
+\midrule
+15:00 & 5 & 시작 · 사전 준비 확인 & \\
+15:05 & 25 & \tagbox{accent}{실습 1} SEC에서 10월 공시 받기 & 다운로드 약 20분 \\
+15:30 & 25 & \tagbox{blue}{실습 2} HTML을 텍스트로 & \\
+15:55 & 10 & 휴식 & \\
+16:05 & 40 & \tagbox{teal}{실습 3} Azure에 내 DB 만들기 & 서버 생성 약 6분 \\
+16:45 & 55 & \tagbox{ink}{실습 4} 임베딩 · SQL · 질의 & 벡터화 약 16분 \\
+17:40 & 20 & 정리 · 퀴즈 (오픈북) & \\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{Claude와 일하는 규칙}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Claude는 코드를 만들고, 설명하고, 고친다}
+각 단계는 \textbf{정해진 코드}로 돈다.\\
+Claude Code는 명령을 실행하기 전에 \textbf{허락을 묻는다} — 무엇을 하려는지 읽고 허락한다.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{alertblock}{올리지 않는 것}
+수업은 \textbf{공개된 SEC 공시}만 다룬다.\\
+회사 자료·고객 정보는 Claude나 Azure에 올리지 않는다.
+\end{alertblock}
+\end{column}
+\end{columns}
+\vspace{0.8em}
+\begin{alertblock}{\texttt{.env}는 비밀 파일}
+이메일, 이후 DB 비밀번호와 키가 들어간다. 채팅에 붙여 넣거나 Claude에게 열어 보라고 하지 않는다.\\
+\src{SEC는 자동으로 공시를 받는 프로그램에 연락처를 밝히라고 요구한다. 이메일은 SEC에 보내는 요청의 머리글에만 쓰인다.}
+\end{alertblock}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\section{사전 준비 확인}
+
+\begin{frame}{사전 준비 — 손들어 확인}
+\footnotesize\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{@{}r X X@{}}
+\toprule
+\textbf{\#} & \textbf{할 일} & \textbf{확인 방법} \\
+\midrule
+1 & \textbf{Azure 무료 계정} (11월 5일 이후 가입 — 크레딧 30일) & portal.azure.com에서 \textbf{구독}이 보인다 \\
+2 & \textbf{VS Code} + \textbf{Claude Code} 확장 최신 & Claude Code가 ``안녕''에 답한다 \\
+3 & \textbf{PostgreSQL} 확장 \texttt{ms-ossdata.vscode-pgsql} \src{(게시자 Microsoft)} & 왼쪽에 코끼리 아이콘 \\
+4 & 작업 폴더 \texttt{문서/jpm-class} — 같은 창에서 파일 → 폴더 열기 & 탐색기에 \texttt{JPM-CLASS} \\
+5 & \textbf{uv} (요청 1) & \texttt{Python 3.12.x} \\
+6 & \textbf{Azure CLI} (요청 2) & \texttt{az version} \\
+7 & 터미널에서 \texttt{az login} & 구독 이름이 나온다 \\
+8 & \textbf{실습 키트} → \texttt{jpm-class} 안에 풀기 & \texttt{jpm\_kit/README.md} \\
+9 & \textbf{\texttt{.env}}: \texttt{SEC\_CONTACT} 한 줄 (영문 이름 + 이메일) & \texttt{.env} 파일과 그 한 줄 \\
+\bottomrule
+\end{tabularx}
+\vspace{0.3em}
+\src{준비가 안 된 사람은 옆 사람과 짝을 지어 시작합니다.}
+\end{frame}
+
+\begin{frame}[fragile]{설치는 Claude에게 — 요청 1, 2}
+\textbf{요청 1} \src{uv (Python 실행 도구)}
+\begin{Verbatim}
+Python 패키지 관리자 uv 가 설치되어 있는지 확인하고, 없으면 공식 설치 방법으로 설치해줘.
+설치 후 `uv run --python 3.12 python --version` 을 실행해 결과를 보여줘.
+\end{Verbatim}
+\vspace{0.4em}
+\textbf{요청 2} \src{Azure CLI}
+\begin{Verbatim}
+Azure CLI 가 설치되어 있는지 확인하고, 없으면 이 운영체제에 맞는 공식 방법(Windows: winget, Mac: Homebrew)으로 설치해줘.
+설치 후 `az version` 결과를 보여줘. 로그인(az login)은 내가 직접 할게.
+\end{Verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{막혔을 때}
+\begin{columns}[T]
+\begin{column}{0.47\textwidth}
+\begin{block}{Windows}
+\small
+``앱이 디바이스를 변경하도록 허용하시겠습니까?'' → \textbf{예}.\\[3pt]
+Claude가 \texttt{uv}·\texttt{az}를 ``찾을 수 없다''고 하면 VS Code를 \textbf{완전히 닫았다 다시 열고} 같은 요청을 다시.\\[3pt]
+문서가 \textbf{OneDrive}에 있으면 \texttt{C:\textbackslash Users\textbackslash <내 이름>\textbackslash jpm-class}에 만든다.
+\end{block}
+\end{column}
+\begin{column}{0.49\textwidth}
+\begin{block}{Mac에 Homebrew가 없으면}
+\small
+Claude는 관리자 비밀번호를 입력할 수 없다. 터미널에서 \textbf{직접}:
+\end{block}
+\vspace{-0.4em}
+\begin{Verbatim}[fontsize=\tiny]
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+\end{Verbatim}
+\small
+끝에 나오는 \textbf{Next steps}의 \texttt{echo} 두 줄, \texttt{eval} 한 줄을 그대로 붙여 넣기 → \texttt{brew -{}-version} → VS Code \textbf{⌘Q} 후 요청 2를 다시.
+\end{column}
+\end{columns}
+\vspace{0.6em}
+\begin{alertblock}{\texttt{.env}는 VS Code 탐색기에서}
+\small
+\texttt{.env.example} 복사 → 붙여넣기 → 이름 바꾸기 \texttt{.env}. 예: \texttt{SEC\_CONTACT=Gildong Hong gildong@example.com} — \textbf{이름은 영문}, 따옴표 없이. \src{메모장은 \texttt{.env.txt}로 저장하는 일이 많다.}
+\end{alertblock}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\input{day1_1_sec}
+\input{day1_2_html}
+\input{day1_3_azure}
+\input{day1_4_sql}
+
+% ─────────────────────────────────────────────
+\section{정리}
+
+\begin{frame}{오늘 한 일}
+\centering
+\begin{tikzpicture}[node distance=0.5cm]
+\node[box=accent,minimum width=3.1cm,text width=2.9cm] (a) {\textbf{받기}\\\scriptsize Claude와 만든 코드로\\SEC 10월 원문};
+\node[box=blue,minimum width=3.1cm,text width=2.9cm,right=of a] (b) {\textbf{바꾸기}\\\scriptsize 글자는 그대로,\\사이만 정한다};
+\node[box=teal,minimum width=3.1cm,text width=2.9cm,right=of b] (c) {\textbf{넣기}\\\scriptsize CLI · 포털 · Claude\\세 가지로 만든 DB};
+\node[box=ink,minimum width=3.1cm,text width=2.9cm,right=of c] (d) {\textbf{묻기}\\\scriptsize SQL로 상품군,\\벡터로 닮음};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d);
+\end{tikzpicture}
+\vspace{1.4em}
+
+\begin{columns}[T]
+\begin{column}{0.44\textwidth}
+\begin{block}{정리 (5분)}
+실습 4의 E — 1일차 정리 메모를 쓴다.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\begin{alertblock}{퀴즈 (15분)}
+오픈북 · 객관식 5 + 서술형 2
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\end{document}

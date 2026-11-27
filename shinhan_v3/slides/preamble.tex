@@ -1,0 +1,41 @@
+% 공통 스타일 (metropolis, 한글, 색, 표, 그림)
+\usetheme[progressbar=frametitle,numbering=fraction,block=fill]{metropolis}
+
+\usepackage{fontspec}
+\usepackage[hangul]{kotex}
+\setmainfont{Apple SD Gothic Neo}
+\setsansfont{Apple SD Gothic Neo}[BoldFont={* Bold}]
+\setmonofont{Menlo}[Scale=0.88]
+\setmainhangulfont{Apple SD Gothic Neo}
+\setsanshangulfont{Apple SD Gothic Neo}[BoldFont={* Bold}]
+\setmonohangulfont{Apple SD Gothic Neo}
+
+\usepackage{booktabs,tabularx,array,colortbl}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18,/pgf/number format/1000 sep={\mathord{,}}}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.misc}
+
+% 색 (metropolis 기본과 맞춤)
+\definecolor{ink}{HTML}{23373B}
+\definecolor{accent}{HTML}{EB811B}
+\definecolor{teal}{HTML}{14B03D}
+\definecolor{blue}{HTML}{2B5EA7}
+\definecolor{soft}{HTML}{F2F4F8}
+\definecolor{muted}{HTML}{6B7785}
+\setbeamercolor{alerted text}{fg=accent}
+\setbeamercolor{block title}{bg=ink!12,fg=ink}
+\setbeamercolor{block body}{bg=soft}
+
+\newcommand{\src}[1]{{\scriptsize\color{muted}#1}}
+\newcommand{\num}[1]{{\color{accent}\textbf{#1}}}
+\newcommand{\tagbox}[2]{{\setlength{\fboxsep}{2.5pt}\colorbox{#1}{\textcolor{white}{\scriptsize\bfseries #2}}}}
+\renewcommand{\arraystretch}{1.25}
+\tikzset{card/.style={rectangle,rounded corners=4pt,draw=#1,line width=0.9pt,fill=#1!6,
+               minimum width=6.6cm,minimum height=2.25cm,align=left,text width=6.2cm,inner sep=6pt},
+  box/.style={rounded corners=3pt,draw=#1,fill=#1!8,line width=0.8pt,minimum width=4.2cm,minimum height=0.9cm,align=center,font=\small},
+  arr/.style={-{Stealth[length=5pt]},line width=0.8pt,muted}}
+
+% Claude 요청문·코드: \begin{Verbatim} … \end{Verbatim} (frame은 [fragile])
+\usepackage{fvextra}
+\fvset{breaklines=true,breakanywhere=true,breaksymbolleft={},fontsize=\scriptsize,frame=leftline,framerule=2pt,rulecolor=\color{accent},xleftmargin=4pt,framesep=6pt}

@@ -1,0 +1,344 @@
+% 1일차 실습 3 — Azure에 내 DB 만들기 (CLI, 포털, Claude)
+% 원본: 실습_Azure_DB_만들기.md · master deck에 \input
+\section{실습 3. Azure에 내 DB 만들기}
+
+% ─────────────────────────────────────────────
+\begin{frame}{목표: 같은 서버를 세 가지 방법으로}
+\begin{block}{목표}
+\small 같은 것(\textbf{Azure PostgreSQL 서버})을 세 가지 방법으로 만들어 보고, 방법마다 \textbf{무엇이 보이고 무엇이 남는지} 비교한다.
+그다음 내가 바꾼 10월 텍스트를 내 DB에 넣고, 강사의 \textbf{공용 상품 DB}와 이어 본다.
+\end{block}
+\footnotesize\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{@{}c X l >{\raggedright\arraybackslash}p{3.6cm}@{}}
+\toprule
+\textbf{순서} & \textbf{방법} & \textbf{누가} & \textbf{시간} \\
+\midrule
+\tagbox{accent}{A} & \textbf{CLI}: 명령 한 줄에 설정 전부 & 강사 시연 (VS Code 터미널) & 10분 \\
+\tagbox{blue}{B} & \textbf{포털}: 화면에서 칸을 하나씩 골라 만들기 → \alert{내 DB} & 나 & 20분 \src{(만들어지는 6분 동안 C를 본다)} \\
+\tagbox{teal}{C} & \textbf{Claude}: 말로 요구사항 → Claude가 명령 스크립트 → 읽고 실행 → 비교 후 삭제 & 강사 시연 (VS Code Claude Code) & 10분 \\
+\tagbox{ink}{D} & 내 DB에 10월 텍스트 넣고 VS Code에서 들여다보기 & 나 & 10분 \\
+\tagbox{ink}{E} & 공용 상품 DB 읽고 내 공시와 이어 보기 & 나 & 5분 \\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{세 방법, 하나의 결과}
+\centering
+\begin{tikzpicture}
+\node[box=accent,minimum width=4.2cm,minimum height=2.2cm,text width=3.9cm] (a) at (0,0)
+  {\tagbox{accent}{A · CLI}\\[3pt] 명령 한 줄에 설정 전부\\[2pt] \scriptsize\color{muted} 강사 · VS Code 터미널 · 10분};
+\node[box=blue,minimum width=4.2cm,minimum height=2.2cm,text width=3.9cm] (b) at (4.7,0)
+  {\tagbox{blue}{B · 포털}\\[3pt] 화면에서 칸을 하나씩\\[2pt] \scriptsize\color{muted} 나 · portal.azure.com · 20분};
+\node[box=teal,minimum width=4.2cm,minimum height=2.2cm,text width=3.9cm] (c) at (9.4,0)
+  {\tagbox{teal}{C · Claude}\\[3pt] 말로 요구사항 → 스크립트\\[2pt] \scriptsize\color{muted} 강사 · VS Code Claude Code · 10분};
+\node[box=ink,minimum width=8cm,minimum height=1cm] (s) at (4.7,-2.6)
+  {\textbf{Azure Database for PostgreSQL} 유연한 서버};
+\draw[arr] (a.south) -- (s.north west);
+\draw[arr] (b.south) -- (s.north);
+\draw[arr] (c.south) -- (s.north east);
+\end{tikzpicture}
+\vspace{0.6em}
+
+\raggedright\small
+\textbf{도구} \src{(사전 준비에서 설치)}: VS Code, VS Code의 \textbf{Claude Code} 확장, \textbf{Azure CLI}(\texttt{az}),
+VS Code의 \textbf{PostgreSQL} 확장(Microsoft, \texttt{ms-ossdata.vscode-pgsql}).\\
+VS Code 터미널에서 \texttt{az login}을 한 번 해 둔다.
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{A. 강사 시연: CLI로 만들기}
+강사가 VS Code 터미널에서 \texttt{tools/create\_pg.sh}를 실행한다.
+\alert{명령 하나의 옵션이 곧 설정}이다. 다음 표를 보며 따라 읽고, B에서 포털 칸과 하나씩 맞춰 본다.
+\vspace{0.4em}
+\begin{Verbatim}
+az postgres flexible-server create \
+  --resource-group jpm-course --name jpm-pg-demo --location japaneast \
+  --tier Burstable --sku-name Standard_B1ms \
+  --storage-size 32 --storage-auto-grow Disabled --version 16 \
+  --admin-user jpmadmin --admin-password <실행 중에 입력> \
+  --public-access <내 공인 IP> --backup-retention 7 --yes
+az postgres flexible-server parameter set -g jpm-course -s jpm-pg-demo -n azure.extensions -v VECTOR
+\end{Verbatim}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{CLI 옵션 ↔ 포털 칸 \src{\normalsize (1/2) 기본 사항}}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.1cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.3cm} p{2.3cm}@{}}
+\toprule
+\textbf{CLI 옵션} & \textbf{뜻} & \textbf{포털에서는} \src{(B에서 채울 칸)} & \textbf{내가 찾은 화면 위치} \\
+\midrule
+\texttt{-{}-resource-group jpm-course} & 묶음 이름. 지울 때 통째로 & 기본 사항 → 리소스 그룹 & \\[4pt]
+\texttt{-{}-name} & 서버 이름 = 주소의 앞부분 (전 세계에서 유일) & 기본 사항 → 서버 이름 & \\[4pt]
+\texttt{-{}-location japaneast} & 지역. \alert{한국 지역은 무료 등급이 안 만들어짐} & 기본 사항 → 지역 & \\[4pt]
+\texttt{-{}-version 16} & PostgreSQL 버전 & 기본 사항 → 버전 & \\[4pt]
+\texttt{-{}-admin-user/}\newline\texttt{-{}-admin-password} & 관리자 계정 & 기본 사항 → 인증 & \\[4pt]
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{CLI 옵션 ↔ 포털 칸 \src{\normalsize (2/2) 사양 · 네트워킹 · 만든 뒤}}
+\footnotesize\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.7cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.2cm} p{2.2cm}@{}}
+\toprule
+\textbf{CLI 옵션} & \textbf{뜻} & \textbf{포털에서는} \src{(B에서 채울 칸)} & \textbf{내가 찾은 화면 위치} \\
+\midrule
+\texttt{-{}-tier Burstable}\newline\texttt{-{}-sku-name Standard\_B1ms} & 가장 작은 사양 (무료 계정 \num{12개월} 무료) & 컴퓨팅 + 스토리지 → 서버 구성 & \\[1pt]
+\texttt{-{}-storage-size 32}\newline\texttt{-{}-storage-auto-grow Disabled} & 저장 공간 \num{32GB}, 자동으로 늘리지 않음 & 컴퓨팅 + 스토리지 & \\[1pt]
+\texttt{-{}-backup-retention 7} & 백업 \num{7일} 보관 & 컴퓨팅 + 스토리지 → 백업 & \\[1pt]
+\texttt{-{}-public-access <IP>} & 이 IP에서만 접속 허용 (방화벽) & 네트워킹 → 방화벽 규칙 & \\[1pt]
+\texttt{parameter set}\newline\texttt{azure.extensions VECTOR} & 벡터 검색 확장(pgvector) 허용 & 만든 뒤 → 서버 매개변수 & \\[1pt]
+\bottomrule
+\end{tabularx}
+\vspace{0.1em}
+\small
+\tagbox{teal}{CLI의 장점} 같은 명령을 다시 실행하면 같은 서버가 나온다. 기록이 남는다.\\
+\tagbox{accent}{단점} 옵션 이름을 알아야 한다.
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{B. 포털에서 직접 만들기 → 내 DB}
+\begin{center}
+\begin{tikzpicture}[node distance=0.35cm]
+\node[box=blue,minimum width=2.6cm,font=\footnotesize] (p1) {portal.azure.com};
+\node[box=blue,minimum width=3.6cm,font=\footnotesize,right=of p1] (p2) {검색창\\\textbf{Azure Database for PostgreSQL}};
+\node[box=blue,minimum width=3.2cm,font=\footnotesize,right=of p2] (p3) {\textbf{유연한 서버}\\(Flexible server)};
+\node[box=accent,minimum width=1.8cm,font=\footnotesize,right=of p3] (p4) {\textbf{만들기}};
+\draw[arr] (p1) -- (p2); \draw[arr] (p2) -- (p3); \draw[arr] (p3) -- (p4);
+\end{tikzpicture}
+\end{center}
+\vspace{0.2em}
+\begin{block}{1. 기본 사항}
+\begin{itemize}
+\item 리소스 그룹: 새로 만들기 → \texttt{jpm-course}
+\item 서버 이름: \texttt{jpm-pg-<내 영문 이니셜>-<숫자 2자리>} \src{(예: \texttt{jpm-pg-hgd-07})}. 이미 있으면 숫자를 바꾼다.
+\item 지역: \textbf{Japan East} · PostgreSQL 버전: \textbf{16}
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{B-1. 기본 사항 (이어서): 사양 · 인증}
+\small
+\begin{itemize}
+\item 워크로드 유형: \textbf{개발} → \textbf{컴퓨팅 + 스토리지 구성}:\\
+  버스트 가능(Burstable), \textbf{Standard\_B1ms}, 저장소 \textbf{32GiB}, 저장소 자동 증가 \textbf{끔}
+\end{itemize}
+\begin{alertblock}{주의: 기본값은 B2s}
+기본값이 \textbf{B2s}(2 vCores, 4 GiB)로 잡힌다. \textbf{서버 구성(Configure server)}을 눌러
+\num{Standard\_B1ms (1 vCore, 2 GiB)}로 바꾼다. 무료 계정의 무료 대상은 \textbf{B1ms뿐}이다.
+\end{alertblock}
+\begin{itemize}
+\item 고가용성: 끔
+\item 인증: \textbf{PostgreSQL 인증만}, 관리자 이름 \texttt{jpmadmin}, 비밀번호 12자 이상 \alert{(종이에 적기)}
+\end{itemize}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{B-2. 네트워킹: 내 IP 한 줄만}
+\begin{columns}[T]
+\begin{column}{0.47\textwidth}
+\begin{block}{누른다}
+방화벽 규칙:\\
+\textbf{+ 현재 클라이언트 IP 주소 추가}\\
+\src{(Add current client IP address)}를 \textbf{한 번}.\\[3pt]
+아래 표에 \textbf{내 IP 한 줄}이 생기면 된다.
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{alertblock}{누르지 않는다}
+바로 옆의 \textbf{+ 0.0.0.0 - 255.255.255.255 추가}\\
+\src{→ 전 세계에 열림}\\[5pt]
+\textbf{Azure 서비스의 공용 액세스 허용}은 체크하지 않는다.
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{B-3, B-4. 검토 + 만들기 → VECTOR 허용}
+\begin{block}{3. 검토 + 만들기}
+화면에 나온 \textbf{예상 비용}을 확인한다\\
+\src{B1ms면 정가 월 \$23.40, 그 아래에 무료 750시간·32GB 표시}\\[2pt]
+→ \textbf{만들기}. \num{약 6분} 걸린다. 기다리는 동안 강사의 C 시연을 본다.
+\end{block}
+\vspace{0.3em}
+\begin{block}{4. 다 만들어지면}
+리소스로 이동 → 왼쪽 \textbf{서버 매개변수} → 검색 \texttt{azure.extensions} → \textbf{VECTOR} 체크 → 저장
+\end{block}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{B. 확인: 내 서버}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{7.6cm} X@{}}
+\toprule
+\textbf{확인} & \textbf{내 값} \\
+\midrule
+서버 이름 & \\[8pt]
+주소 \src{(개요의 ``서버 이름'' = \texttt{….postgres.database.azure.com})} & \\[8pt]
+예상 월 비용 \src{(검토 화면)} & \\[8pt]
+만드는 데 걸린 시간 & \\[8pt]
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{C. 강사 시연: Claude로 만들기 → 비교 → 삭제}
+\small 강사가 VS Code의 Claude Code 패널에 \textbf{말로} 요구사항을 주고, Claude가 쓴 스크립트를 함께 읽은 뒤 실행한다. \alert{실행 전에 무엇을 확인하는지} 본다.
+\vspace{0.3em}
+\begin{Verbatim}
+Azure CLI 로 PostgreSQL 유연한 서버를 하나 만드는 스크립트 make_pg2.sh 를 써줘. 실행하지는 마.
+조건: 리소스 그룹 jpm-course, 지역 japaneast, 서버 이름 jpm-pg-demo-c,
+Burstable Standard_B1ms, 저장소 32GB 자동 증가 끔, PostgreSQL 16, 관리자 jpmadmin,
+방화벽은 이 노트북의 공인 IP만(서버를 만들 때 --public-access 에 그 IP를 넣어 한 번에), azure.extensions 에 VECTOR 허용.
+비밀번호는 스크립트가 실행될 때 터미널에서 직접 입력하게 하고(화면에 안 보이게), 어디에도 저장하지 마.
+명령마다 무엇을 하는지 한 줄 주석을 달아줘.
+az 옵션 이름은 기억으로 쓰지 말고, 쓰는 명령마다 이 노트북에서 `az <명령> --help` 를 실행해 확인한 뒤 써. --output 옵션은 붙이지 마.
+\end{Verbatim}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{C. 왜 그 두 지시가 필요한가}
+\small
+\begin{alertblock}{괄호 안의 방화벽 지시와 마지막 줄이 없으면}
+Claude가 서버만 만들고 \textbf{방화벽 단계에서 멈추는} 일이 잦다.
+\end{alertblock}
+\vspace{0.2em}
+\begin{columns}[T]
+\begin{column}{0.47\textwidth}
+\begin{block}{방화벽에서 멈추는 이유}
+\begin{itemize}
+\item 옛 문법(\texttt{firewall-rule create -n <서버>})을 쓴다
+\item \texttt{-{}-public-access None}으로 만든 뒤 규칙을 따로 추가하려 한다
+\end{itemize}
+\src{\texttt{None}은 도움말 설명과 달리 공개 접근이 꺼진 서버를 만들어 규칙을 추가할 수 없다 (az 2.92).}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{\texttt{-{}-output table}을 붙이면}
+서버 만들기에 붙이면 서버는 생기지만\\
+\textbf{``Table output unavailable''} 오류로 스크립트가 멈춰 \alert{VECTOR가 빠진다}.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{C. 시연 순서}
+\small
+\begin{enumerate}
+\item Claude가 쓴 스크립트를 \textbf{A의 명령과 한 줄씩 대조}한다. 다른 옵션이 있으면 Claude에게 왜 다른지 묻는다.
+\item 강사가 VS Code 터미널에서 실행한다 \src{(비밀번호는 터미널에 직접 입력)}.
+\item Claude에게 \textit{``A·C 두 서버의 설정을 az CLI 로 읽어 비교표를 만들고 다른 칸을 표시해줘''} → 비교표를 같이 본다.
+\item 두 번째 서버를 지운다:
+\end{enumerate}
+\begin{Verbatim}
+az postgres flexible-server delete -g jpm-course -n jpm-pg-demo-c --yes
+\end{Verbatim}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{C. 시연을 보며 적기}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{6.4cm} X@{}}
+\toprule
+\textbf{시연을 보며 적기} & \\
+\midrule
+Claude 스크립트가 A 명령과 다른 옵션 & \\[14pt]
+실행 전에 강사가 확인한 것 & \\[14pt]
+세 방법(CLI·포털·Claude)이 각각 남기는 기록 & \\[14pt]
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{D. 내 DB에 10월 텍스트 넣기}
+\small
+\textbf{1.} 사전 준비 때 만든 \texttt{jpm\_kit/.env}를 \textbf{열어서} \texttt{PGHOST}(B의 주소)와 \texttt{PGPASSWORD} 두 줄을 \textbf{직접} 채운다.
+\begin{alertblock}{주의}
+\texttt{.env.example}을 다시 복사하면 \texttt{SEC\_CONTACT}가 지워지니 복사하지 않는다. \textbf{Claude에게 보여 주지 않는다.}
+\end{alertblock}
+\vspace{0.2em}
+\textbf{2.} Claude Code 패널:
+\begin{Verbatim}
+jpm_kit/load_text.py 가 무엇을 하는지 설명해줘(.env 는 열지 마). 특히 텍스트를 어떤 단위로 잘라 chunks 에 넣는지,
+'공통 문구'를 왜 한 번만 넣는지. 설명이 끝나면 uv run jpm_kit/load_text.py 를 실행해줘.
+\end{Verbatim}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{D-3. VS Code에서 내 DB 들여다보기}
+\small
+VS Code 왼쪽 \textbf{PostgreSQL} 아이콘 → 새 연결 → 내 서버 주소·\texttt{jpmadmin}·비밀번호 → \texttt{postgres} 데이터베이스 → 표 \texttt{filings}, \texttt{chunks}를 열어 본다. 새 쿼리 창에서:
+\begin{Verbatim}
+select accession, chars, left(body, 120) from filings order by chars limit 5;
+select is_boilerplate, count(*), avg(length(body))::int from chunks group by 1;
+\end{Verbatim}
+\vspace{0.2em}
+\begin{tabularx}{\textwidth}{@{}l p{2.6cm} X@{}}
+\toprule
+\textbf{표} & \textbf{행 수} & \textbf{1행은 무엇인가} \\
+\midrule
+\texttt{filings} & & \\[6pt]
+\texttt{chunks} \src{(공통 문구 수)} & & \\[6pt]
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{E. 공용 상품 DB 읽기}
+\small
+상품 표는 강사가 10개월 공시로 만든 것을 \textbf{모두 같이} 쓴다 \src{(읽기 전용)}. 접속 정보는 아래와 같고, 키트의 \texttt{.env.example}에 이미 들어 있다.
+\texttt{.env}에 이 네 줄이 있는지 확인한다 \src{(없으면 복사해 넣기)}.
+\begin{Verbatim}
+SHARED_HOST=jpm-shared-d32c.postgres.database.azure.com
+SHARED_USER=student_ro
+SHARED_PASSWORD=20261128
+SHARED_DATABASE=jpm
+\end{Verbatim}
+\begin{alertblock}{연세대 네트워크에서만}
+읽기 전용 계정이라 표를 바꿀 수 없고, \textbf{연세대 네트워크(교내 와이파이·유선)에서만} 접속된다.
+휴대폰 핫스팟이나 집에서는 연결되지 않는다.
+\end{alertblock}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{E. 내 공시와 이어 보기}
+그다음:
+\begin{Verbatim}
+uv run jpm_kit/shared_products.py
+\end{Verbatim}
+\vspace{0.3em}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{7.6cm} X@{}}
+\toprule
+\textbf{확인} & \textbf{내 값} \\
+\midrule
+공용 상품 표의 상품 수 / 공시 수 & \\[8pt]
+원금 확인 상품 / 합계 & \\[8pt]
+내 10월 공시 중 상품이 있는 공시 / 없는 공시 & \\[8pt]
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{생각해 보기}
+\begin{columns}[T]
+\begin{column}{0.47\textwidth}
+\begin{block}{1. 세 방법}
+``어제와 똑같은 서버를 내일 다시 만들기''에 가장 좋은 것은? 감사(누가 무엇을 만들었나)에는?
+\end{block}
+\begin{block}{2. 실행 전 확인}
+Claude가 만든 스크립트를 실행하기 전에 꼭 확인해야 할 것 두 가지는? \src{(C 시연에서 본 것)}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{3. 빈 공시}
+내 10월 공시인데 상품 표에 상품이 없는 공시는 무엇일까?
+\end{block}
+\begin{block}{4. 읽기 전용}
+공용 상품 DB가 읽기 전용인 이유는?
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}

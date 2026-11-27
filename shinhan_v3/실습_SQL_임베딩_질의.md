@@ -226,4 +226,8 @@ uv run jpm_kit/similar.py --outliers 5
 4. 벡터가 놓친 것 한 가지와 그 이유 (예: D-3의 원금 보장, B의 숫자)
 5. 2일차에 확인하고 싶은 질문
 
-> Azure 리소스(`jpm-course`)는 지우지 않습니다. 2일차에 그대로 씁니다.
+> 2일차에는 Azure를 쓰지 않습니다. 수업이 끝나면 Azure 리소스를 지워도 됩니다. VS Code 터미널에서:
+> ```
+> az group delete -n jpm-course --yes
+> ```
+> 내 DB와 Azure OpenAI가 함께 지워집니다(몇 분 걸림). 지운 뒤에는 `jpm_kit/.env`의 `PGHOST`·`PGPASSWORD`·Azure OpenAI 줄이 더 이상 쓰이지 않습니다.

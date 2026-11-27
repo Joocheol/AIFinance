@@ -1,0 +1,236 @@
+% 1일차 · 실습 1 — SEC에서 10월 공시 받기 (실습_SEC_10월_수집.md)
+\section{실습 1. SEC에서 10월 공시 받기}
+
+% ─────────────────────────────────────────────
+\begin{frame}{목표: 공시 원문 한 달 치를 SEC에서 직접}
+\begin{block}{이번 실습}
+JPMorgan이 \num{2026년 10월}에 낸 \textbf{424B2 공시 원문}을 \textbf{SEC에서 직접} 받는 코드를 Claude와 만들고,\\
+\textbf{내가 읽고, 내가 실행하고,} 받은 것이 맞는지 \textbf{확인}합니다.
+\end{block}
+\vspace{0.6em}
+\centering\small 이 데이터가 이후 모든 실습의 출발점입니다.\\[6pt]
+\begin{tikzpicture}[node distance=0.35cm]
+\node[box=accent,minimum width=2.3cm] (a) {SEC 원문};
+\node[box=ink,minimum width=2.3cm,right=of a] (b) {텍스트 변환};
+\node[box=ink,minimum width=2.3cm,right=of b] (c) {규칙 추출};
+\node[box=ink,minimum width=2.3cm,right=of c] (d) {상품 표};
+\node[box=ink,minimum width=2.3cm,right=of d] (e) {검색};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d); \draw[arr] (d) -- (e);
+\end{tikzpicture}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{할 일과 시간}
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{@{}X l l@{}}
+\toprule
+\textbf{할 일} & \textbf{어디서} & \textbf{시간} \\
+\midrule
+1. 연락처가 \texttt{.env}에 있는지 확인 (사전 준비 9) & VS Code 탐색기 & 1분 \\
+2. Claude에게 코드 만들게 하기 & Claude 패널 & 10분 \\
+3. 코드를 읽고 요구사항 확인 & Claude 패널 & 10분 \\
+4. 목록만 받기, 원문 3건만 받기 (시험) & Claude 패널 & 5분 \\
+5. 10월 전체 받기 (백그라운드, 약 20분) & Claude 패널 & 기다리는 동안 다음 설명 \\
+6. 받은 것 검증 & Claude 패널 & 5분 \\
+\bottomrule
+\end{tabularx}
+\vspace{0.5em}
+\begin{alertblock}{SEC 공정 접근 규칙}
+한 IP에서 \num{초당 10건}까지. 넘으면 SEC가 그 IP를 10분 이상 막습니다(\texttt{403}).\\
+이 강의실은 노트북마다 IP가 달라 각자 받을 수 있지만, 내 코드는 \num{초당 2건}으로 여유 있게 받습니다.
+\end{alertblock}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{1. 연락처가 \texttt{.env}에 있는지 확인 \src{\normalsize 사전 준비 9에서 적어 옴}}
+\small
+\noindent SEC는 자동으로 받는 프로그램에 \textbf{연락처(이름과 이메일)}를 밝히라고 요구합니다. 없으면 \texttt{403}으로 거부합니다.
+\vspace{0.4em}
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\textbf{\texttt{문서/jpm-class/jpm\_kit/.env}}
+\begin{Verbatim}
+SEC_CONTACT=Gildong Hong gildong@example.com
+\end{Verbatim}
+\begin{itemize}\setlength\itemsep{1pt}
+\item VS Code 탐색기에서 열어 \textbf{있는지만} 확인하고 탭을 닫습니다 (없으면 지금 적습니다)
+\item \texttt{.env.txt}로 보이면 이름을 \texttt{.env}로 바꿉니다
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\begin{alertblock}{한글 이름은 안 됩니다}
+따옴표 없이 \texttt{영문 이름 빈칸 이메일} 그대로.\\
+요청 머리글(User-Agent)에는 영문·숫자·기호만 쓸 수 있어 오류로 멈춥니다.\\
+\src{\texttt{UnicodeEncodeError: 'latin-1' codec can't encode}}
+\end{alertblock}
+\begin{block}{이메일은 채팅에 쓰지 않습니다}
+코드가 \texttt{.env}를 직접 읽습니다. Claude는 \texttt{.env}를 열지 않습니다 \src{(키트의 \texttt{CLAUDE.md} 규칙)}.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{2. Claude에게 코드 만들게 하기}
+\small
+\noindent VS Code에서 폴더 \texttt{jpm-class}를 연 상태로, 왼쪽 \textbf{Claude Code} 패널에 아래 요구사항을 \textbf{그대로} 붙여 넣습니다.
+\vspace{0.3em}
+\begin{Verbatim}
+jpm_kit/sec_oct.py 를 만들어줘. 아직 실행하지 마.
+목적: JPMorgan이 2026-10-01 ~ 2026-10-31에 SEC에 제출한 424B2 공시 원문을 받는다.
+
+요구사항
+1. 대상 목록: https://data.sec.gov/submissions/CIK0000019617.json (JPMorgan Chase & Co.)과
+   CIK0001665650.json (발행 자회사)의 filings.recent 에서 form 이 424B2 이고 filingDate 가 10월인 것.
+   같은 공시가 두 회사에 함께 등록되므로 accessionNumber 로 합친다.
+2. 원문 주소: https://www.sec.gov/Archives/edgar/data/19617/<accessionNumber에서 '-'를 뺀 것>/<primaryDocument>
+3. 연락처: jpm_kit/.env 의 SEC_CONTACT 값을 User-Agent 로 쓴다. 값을 화면에 출력하거나 다른 파일에 쓰지 않는다.
+   값이 비었거나 영문·숫자·기호(ASCII) 밖의 글자가 있으면 요청을 보내기 전에 멈추고 "SEC_CONTACT를 영문 이름과 이메일로 적으세요"라고만 출력한다.
+   너(Claude)는 .env 를 열지 않는다. 코드가 실행될 때 읽는다.
+\end{Verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{2. Claude에게 코드 만들게 하기 (계속)}
+\begin{Verbatim}
+4. 속도: 요청은 한 번에 하나씩, 초당 2건 이하.
+5. 403 또는 429 를 받으면 즉시 전체를 멈추고 이유를 출력한다. 다른 방법으로 다시 시도하지 않는다.
+6. 저장: jpm_kit/sec_oct/html/<accessionNumber>.html. 이미 있는 파일은 다시 받지 않는다(중단 후 이어 받기).
+7. 기록: jpm_kit/sec_oct/filings.csv (accession, filingDate, 등록 회사, 원문 주소)와
+   jpm_kit/sec_oct/download_log.csv (accession, 결과, 바이트 수, sha256, 받은 시각).
+8. 옵션: --list-only (목록만 만들기), --limit N (원문 N건만 받기).
+9. 100건마다 진행 상황(받은 수, 경과 시간, 남은 시간 추정)을 한 줄로 출력한다.
+10. Python 표준 라이브러리만 쓰고, 실행은 `uv run jpm_kit/sec_oct.py` 로 한다.
+다 만들면 코드가 위 10가지를 각각 어디서 지키는지 줄 번호로 알려줘.
+\end{Verbatim}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{3. 코드를 읽고 요구사항 확인}
+\small
+\noindent Claude가 알려 준 줄 번호를 \textbf{직접 열어} 확인하고 표를 채웁니다. 하나라도 \alert{``아니요''}면 Claude에게 고치게 합니다.
+\vspace{0.3em}
+
+\begin{tabularx}{\textwidth}{@{}c X p{2.2cm} p{2.2cm}@{}}
+\toprule
+\textbf{\#} & \textbf{요구사항} & \textbf{지키나?} & \textbf{줄 번호} \\
+\midrule
+1 & 두 회사 목록을 합친다 \src{(한 회사만 보면 몇 건이 빠질까?)} & & \\
+3 & 연락처를 출력하지 않는다 & & \\
+4 & 초당 2건 이하, 한 번에 하나 & & \\
+5 & \texttt{403}·\texttt{429}면 즉시 멈춘다 & & \\
+6 & 이미 받은 파일은 건너뛴다 & & \\
+\bottomrule
+\end{tabularx}
+\vspace{0.4em}
+\begin{block}{확인 질문}
+\textit{``이 코드가 SEC에 보내는 요청을 하나씩 순서대로 말해줘. 10월 전체를 받으면 요청이 모두 몇 번이고 몇 분 걸려?''}
+\end{block}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{4. 시험: 목록만, 그다음 3건만}
+\begin{columns}[T]
+\begin{column}{0.40\textwidth}
+\begin{Verbatim}
+uv run jpm_kit/sec_oct.py --list-only
+uv run jpm_kit/sec_oct.py --limit 3
+\end{Verbatim}
+\vspace{0.6em}
+\begin{alertblock}{403이 나오면}
+\textbf{그 자리에서 멈추고 손을 듭니다.}\\
+다시 실행하지 않습니다.
+\end{alertblock}
+\end{column}
+\begin{column}{0.56\textwidth}
+\small
+\begin{tabularx}{\textwidth}{@{}X p{2.4cm}@{}}
+\toprule
+\textbf{확인} & \textbf{내 값} \\
+\midrule
+10월 424B2 공시 수 & \\[4pt]
+그중 두 회사에 함께 등록된 수 & \\[4pt]
+받은 3건의 accession & \\[4pt]
+\texttt{html} 폴더에서 1건을 브라우저로 열었을 때 보이는 제목 & \\[4pt]
+\bottomrule
+\end{tabularx}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{5. 10월 전체 받기}
+\small
+\noindent Claude Code 패널에서:
+\begin{Verbatim}
+jpm_kit/sec_oct.py 를 백그라운드로 실행하고, 진행 상황을 주기적으로 알려줘.
+\end{Verbatim}
+\vspace{0.3em}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{얼마나 걸리나}
+초당 2건이면 \num{약 1,900건}에 \num{20분 남짓}.\\
+노트북 전원을 연결하고 덮지 않습니다.\\
+기다리는 동안 다음 실습(HTML을 텍스트로 바꾸기)의 설명을 듣습니다.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{멈추거나 실패하면}
+중간에 멈추면 같은 명령을 다시 실행합니다(이어 받기).\\
+끝났을 때 \texttt{failed}가 0이 아니면 한 번 더 실행합니다. 받은 파일은 건너뛰고 실패한 것만 다시 받습니다.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{5. 403이 나오거나 시간 안에 못 받으면}
+\begin{alertblock}{강사가 올린 압축 파일로 대신합니다}
+\href{https://www.dropbox.com/scl/fi/a7njti2aj7789ccrj0cyw/10-_.zip?rlkey=tk8t7s50x2vsotvejaeh8vfit&dl=1}{\texttt{10월\_원문.zip}} \src{(51MB)}을 \texttt{jpm\_kit/sec\_oct/} 폴더에 풉니다.\\[2pt]
+\src{받은 파일 이름이 \texttt{10-\_.zip}처럼 보일 수 있음}
+\end{alertblock}
+\vspace{0.6em}
+\centering
+\begin{tikzpicture}[node distance=0.6cm]
+\node[box=accent,minimum width=3.2cm] (z) {\texttt{10월\_원문.zip}};
+\node[box=ink,minimum width=3.6cm,right=1.2cm of z,yshift=0.6cm] (f) {\texttt{filings.csv}};
+\node[box=ink,minimum width=3.6cm,right=1.2cm of z,yshift=-0.6cm] (h) {\texttt{html/} \src{(1,859건)}};
+\node[box=teal,minimum width=2.8cm,right=1.2cm of f,yshift=-0.6cm] (v) {검증(6)은 똑같이};
+\draw[arr] (z.east) -- (f.west); \draw[arr] (z.east) -- (h.west);
+\draw[arr] (f.east) -- (v.west); \draw[arr] (h.east) -- (v.west);
+\end{tikzpicture}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}[fragile]{6. 받은 것이 맞는지 검증}
+\begin{Verbatim}
+uv run jpm_kit/check_oct.py
+\end{Verbatim}
+\small
+\begin{columns}[T]
+\begin{column}{0.44\textwidth}
+\noindent 키트의 검증 스크립트가 내 \texttt{sec\_oct/}를 \textbf{강사가 같은 날 받은 목록과 원문}에 대조합니다.\\[4pt]
+\src{SEC는 원문을 보낼 때마다 끝에 봇 차단용 \texttt{<script>} 한 줄을 바꿔 붙이므로, 그 줄만 빼고 비교합니다.}
+\end{column}
+\begin{column}{0.52\textwidth}
+\begin{tabularx}{\textwidth}{@{}X p{2.2cm}@{}}
+\toprule
+\textbf{확인} & \textbf{내 값} \\
+\midrule
+목록: 강사 목록과 같은 accession 수 / 빠진 수 / 더 있는 수 & \\[6pt]
+원문: 같은 파일 수 / 다른 파일 수 / 없는 파일 수 & \\[6pt]
+\bottomrule
+\end{tabularx}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ─────────────────────────────────────────────
+\begin{frame}{생각해 보기}
+\begin{enumerate}\setlength\itemsep{10pt}
+\item 발행 자회사(CIK 1665650) 목록만 썼다면 \alert{몇 건이 빠졌을까요?} 왜 빠질까요?
+\item 같은 공시를 오늘 받고 내일 받으면 파일의 sha256이 다릅니다.\\
+그런데도 \alert{``같은 원문''}이라고 말할 수 있는 근거는?
+\item 받은 1,900여 건은 모두 \alert{서로 다른 상품}일까요? \src{(다음 실습에서 확인합니다)}
+\end{enumerate}
+\end{frame}
